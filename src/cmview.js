@@ -21,7 +21,8 @@ var CMView=React.createClass({
 	,componentDidMount:function(){
 		this.context.store.listen("loaded",this.onLoaded,this);
 		if (this.props.doc) {
-			this.context.getter("file",{filename:this.props.doc,side:this.props.side});	
+			this.context.getter("file",
+				{filename:this.props.doc,side:this.props.side});	
 		}
 	}
 	,onCursorActivity:function(cm){
@@ -30,15 +31,27 @@ var CMView=React.createClass({
 	,onSetDoc:function(side,filename){
 		this.context.getter("setDoc",side,filename);
 	}
+	,getDocRule:function(doc){
+		doc=doc||this.props.doc;
+		var docs=this.props.docs;
+		for (var i=0;i<docs.length;i++) {
+			if (docs[i].name==this.props.doc) {
+				return docs[i].rule;
+			}
+		}
+	}
 	,onLoaded:function(res){
 		if (res.side!=this.props.side) return;
-		this.setState({data:res.data});
+		this.refs.cm.getCodeMirror().setValue(res.data);
+		var rule=this.getDocRule();
+		var cmdoc=this.refs.cm.getCodeMirror().doc;
+		rule && rule.markAllLine(cmdoc);
 	}
 	,render:function(){
 		return E("div",{},
 			E(TopRightMenu,{side:this.props.side,onSetDoc:this.onSetDoc,
 				buttons:this.props.docs,selected:this.props.doc}),
-	  	E(CodeMirror,{ref:"cm",value:this.state.data,theme:"ambiance",
+	  	E(CodeMirror,{ref:"cm",value:"",theme:"ambiance",readOnly:true,
   	  onCursorActivity:this.onCursorActivity})
   	 )
 	}

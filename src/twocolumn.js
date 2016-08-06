@@ -6,7 +6,7 @@ var TwoColumn = React.createClass({
   getInitialState:function() {
     return {};
   },
-  
+
   render:function(){
   	return E("div",{style:this.props.style},
   		E("div",{style:{display:'flex'}},
