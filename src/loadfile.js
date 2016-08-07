@@ -1,6 +1,27 @@
 /* jsonp loading text dynamically */
 var {action,store,getter,registerGetter}=require("./model");
 
+var loadqueue=[];
+var running=false;
+
+var fireEvent=function(){
+	if (loadqueue.length===0) {
+		running=false;
+		return;
+	}
+	running=true;
+	var task=loadqueue.pop();
+	var func=task[0], opts=task[1], cb=task[2], context=task[3];
+	func.call(context,opts);
+}
+
+var queueTask=function(func,opts,cb,context) {
+	loadqueue.unshift([func,opts,cb,context]);
+	if (!running) fireEvent();
+}
+var loadfile=function(obj){
+	queueTask(_loadfile,obj);
+}
 var datafiles={};
 var loadingfilename="";
 var loadingobj=null;
@@ -21,11 +42,12 @@ var loadscriptcb=function(data){
 	action("loaded",o);
 	loadingfilename="";
 	loadingobj=null;
+	setTimeout(fireEvent,0);
 }
 window.loadscriptcb=loadscriptcb;
 
-var loadfile=function(obj){
-	if (loadingfilename) return; //cannot load multiple file
+var _loadfile=function(obj){
+	if (loadingfilename) return;
 
 	if (typeof obj=="string") {
 		filename=obj;
@@ -48,5 +70,9 @@ var loadfile=function(obj){
 		document.getElementsByTagName('head')[0].appendChild(script);
 	}
 }
+var fileSync=function(filename){
+	return datafiles[filename];
+}
 registerGetter("file",loadfile);
+registerGetter("fileSync",fileSync);//make sure already loaded
 module.exports=loadfile;
