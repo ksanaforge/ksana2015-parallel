@@ -62,6 +62,7 @@ var _loadfile=function(obj){
 		o=JSON.parse(JSON.stringify(obj));
 		o.data=datafiles[filename];
 		action("loaded",o);
+		setTimeout(fireEvent,0);
 	} else {
 		loadingfilename=filename;
 		loadingobj=obj;
