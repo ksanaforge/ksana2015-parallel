@@ -42,17 +42,23 @@ var CMView=React.createClass({
 	}
 	,onLoaded:function(res){
 		if (res.side!=this.props.side) return;
-		this.refs.cm.getCodeMirror().setValue(res.data);
-		var rule=this.getDocRule();
-		var cmdoc=this.refs.cm.getCodeMirror().doc;
-		rule && rule.markAllLine(cmdoc);
+		var cm=this.refs.cm.getCodeMirror();
+		cm.setValue(res.data);
+	}
+	,onViewportChange:function(cm,from,to) {
+		if (this.vptimer) clearTimeout(this.vptimer);
+		this.vptimer=setTimeout(function(){
+			var rule=this.getDocRule();
+			rule && rule.markLines(cm,from,to);
+		}.bind(this),100);
 	}
 	,render:function(){
 		return E("div",{},
 			E(TopRightMenu,{side:this.props.side,onSetDoc:this.onSetDoc,
 				buttons:this.props.docs,selected:this.props.doc}),
 	  	E(CodeMirror,{ref:"cm",value:"",theme:"ambiance",readOnly:true,
-  	  onCursorActivity:this.onCursorActivity})
+  	  onCursorActivity:this.onCursorActivity
+  	  ,onViewportChange:this.onViewportChange})
   	 )
 	}
 })
