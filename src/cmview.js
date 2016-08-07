@@ -11,7 +11,8 @@ var CMView=React.createClass({
 	}
 	,contextTypes:{
 		store:PT.object,
-		getter:PT.func
+		getter:PT.func,
+		action:PT.func
 	}
 	,componentWillReceiveProps:function(nextProps) {
 		if (nextProps.doc!==this.props.doc) {
@@ -19,9 +20,38 @@ var CMView=React.createClass({
 		}
 	}
 	,componentDidMount:function(){
+		this.context.store.listen("gopara",this.onGoPara,this);
 		this.context.store.listen("loaded",this.onLoaded,this);
 		if (this.props.doc) {
 			this.context.getter("file",{filename:this.props.doc,side:this.props.side});
+		}
+	}
+	,getScreenText:function(){
+		var cm=this.refs.cm.getCodeMirror();
+		var vp=cm.getViewport();
+		var rule=this.getDocRule();
+		var t="";
+		for (var i=vp.from;i<=vp.to;i++) {
+			t+=cm.doc.getLine(i)+"\n";
+		}
+		return t;
+	}
+	,onGoPara:function(para){
+		var screentext=this.getScreenText();
+		var rule=this.getDocRule();
+		var cm=this.refs.cm.getCodeMirror();
+		var paragraphs=rule.getParagraph(screentext);
+		if (paragraphs.indexOf(para)==-1) {
+			var text=cm.getValue();
+			var paratext=rule.makeParagraph(para)
+			var at=text.indexOf(paratext);
+			if (at>-1) {
+				var pos=cm.doc.posFromIndex(at);
+				//scroll to last line , so that the paragraph will be at top
+				cm.scrollIntoView({line:cm.doc.lineCount()-1,ch:0})
+				pos.line--;
+				cm.scrollIntoView(pos);
+			}
 		}
 	}
 	,onNDefLoaded:function(arg){
@@ -37,6 +67,8 @@ var CMView=React.createClass({
 		var vp=cm.getViewport();
 		this.vpfrom=-1;//force onViewport
 		this.onViewportChange(cm,vp.from,vp.to);
+		var rule=this.getDocRule();
+		rule.setActionHandler(this.context.action);
 	}
 	,getNoteFile:function(cm,nline){
 		if (!nline&&nline!==0) {
