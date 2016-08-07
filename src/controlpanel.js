@@ -22,9 +22,7 @@ var ControlPanel = React.createClass({
   	this.setState({filename:e.target.value});
   }
   ,render:function(){
-  	return E("div",{style:this.props.style},
-  		E("input",{onChange:this.onFilenameChange,value:this.state.filename}),
-  		E("button",{onClick:this.load},"Load"))
+  	return E("div",{style:this.props.style});
   }
 });
 module.exports=ControlPanel;

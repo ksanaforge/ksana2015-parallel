@@ -21,8 +21,15 @@ var CMView=React.createClass({
 	,componentDidMount:function(){
 		this.context.store.listen("loaded",this.onLoaded,this);
 		if (this.props.doc) {
-			this.context.getter("file",
+			if (this.props.side) {
+				setTimeout(function(){ //load file later than side 0
+					this.context.getter("file",
+						{filename:this.props.doc,side:this.props.side});
+				}.bind(this),1000*this.props.side);
+			} else {
+				this.context.getter("file",
 				{filename:this.props.doc,side:this.props.side});	
+			}
 		}
 	}
 	,onCursorActivity:function(cm){
@@ -46,11 +53,21 @@ var CMView=React.createClass({
 		cm.setValue(res.data);
 	}
 	,onViewportChange:function(cm,from,to) {
+
 		if (this.vptimer) clearTimeout(this.vptimer);
-		this.vptimer=setTimeout(function(){
+		var clearMarksBeyondViewport=function(f,t){
+			var M=cm.doc.findMarks({line:0,ch:0},{line:f-1,ch:65536});
+			M.forEach(function(m){m.clear()});
+
+			var M=cm.doc.findMarks({line:0,ch:t},{line:cm.lineCount(),ch:65536});
+			M.forEach(function(m){m.clear()});			
+		}		
+		this.vptimer=setTimeout(function(){ //marklines might trigger viewport change
+			var vp=cm.getViewport(); //use current viewport instead of from,to
+			clearMarksBeyondViewport(vp.from,vp.to+20);
 			var rule=this.getDocRule();
-			rule && rule.markLines(cm,from,to);
-		}.bind(this),100);
+			rule && rule.markLines(cm,vp.from,vp.to+20);
+		}.bind(this),50);
 	}
 	,render:function(){
 		return E("div",{},
