@@ -19,9 +19,12 @@ var CMView=React.createClass({
 			this.context.getter("file",{filename:nextProps.doc,side:nextProps.side});	
 		}
 	}
-	,componentDidMount:function(){
+	,defaultListeners:function(){
 		this.context.store.listen("gopara",this.onGoPara,this);
 		this.context.store.listen("loaded",this.onLoaded,this);
+	}
+	,componentDidMount:function(){
+		this.defaultListeners();
 		if (this.props.doc) {
 			this.context.getter("file",{filename:this.props.doc,side:this.props.side});
 		}
@@ -56,7 +59,8 @@ var CMView=React.createClass({
 	}
 	,onNDefLoaded:function(arg){
 		this.context.store.unlistenAll(this);
-		this.context.store.listen("loaded",this.onLoaded,this);
+		this.defaultListeners();
+
 		this.markViewport();
 	}
 	,markViewport:function(){
@@ -91,7 +95,6 @@ var CMView=React.createClass({
 		} else {
 			this.context.store.unlistenAll(this);
 			this.context.store.listen("loaded",this.onNDefLoaded,this);
-
 			this.context.getter("file",{filename,side:this.props.side});
 		}
 	}
@@ -129,7 +132,7 @@ var CMView=React.createClass({
 			var M=cm.doc.findMarks({line:0,ch:t},{line:cm.lineCount(),ch:65536});
 			M.forEach(function(m){m.clear()});			
 		}		
-		
+
 		if (this.vptimer) clearTimeout(this.vptimer);
 		this.vptimer=setTimeout(function(){ //marklines might trigger viewport change
 			rule.clearNote();			
