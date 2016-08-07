@@ -57,9 +57,6 @@ var CMView=React.createClass({
 	,onNDefLoaded:function(arg){
 		this.context.store.unlistenAll(this);
 		this.context.store.listen("loaded",this.onLoaded,this);
-		//trigger viewport change
-		console.log("ndef loaded",arg.filename);
-
 		this.markViewport();
 	}
 	,markViewport:function(){
@@ -125,7 +122,6 @@ var CMView=React.createClass({
 		if (!rule)return;
 		if (this.vpfrom==from && this.vpto==to)return;
 		
-		if (this.vptimer) clearTimeout(this.vptimer);
 		var clearMarksBeyondViewport=function(f,t){
 			var M=cm.doc.findMarks({line:0,ch:0},{line:f-1,ch:65536});
 			M.forEach(function(m){m.clear()});
@@ -133,6 +129,8 @@ var CMView=React.createClass({
 			var M=cm.doc.findMarks({line:0,ch:t},{line:cm.lineCount(),ch:65536});
 			M.forEach(function(m){m.clear()});			
 		}		
+		
+		if (this.vptimer) clearTimeout(this.vptimer);
 		this.vptimer=setTimeout(function(){ //marklines might trigger viewport change
 			rule.clearNote();			
 			var vp=cm.getViewport(); //use current viewport instead of from,to
@@ -141,7 +139,8 @@ var CMView=React.createClass({
 			var ndefs=this.context.getter("fileSync",ndeffile);
 			rule.markLines(cm,vp.from,vp.to+20,ndefs);
 			this.vpfrom=vp.from,this.vpto=vp.to;
-		}.bind(this),50);
+		}.bind(this),500); 
+		//might be big enough, otherwise onViewport will be trigger again, causing endless loop
 	}
 	,render:function(){
 		return E("div",{},
