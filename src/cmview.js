@@ -21,6 +21,7 @@ var CMView=React.createClass({
 	}
 	,defaultListeners:function(){
 		this.context.store.listen("gopara",this.onGoPara,this);
+		this.context.store.listen("gokepan",this.onGoKepan,this);
 		this.context.store.listen("loaded",this.onLoaded,this);
 	}
 	,componentDidMount:function(){
@@ -39,23 +40,30 @@ var CMView=React.createClass({
 		}
 		return t;
 	}
-	,onGoPara:function(para){
-		var screentext=this.getScreenText();
-		var rule=this.getDocRule();
+	,scrollToText:function(t){
 		var cm=this.refs.cm.getCodeMirror();
-		var paragraphs=rule.getParagraph(screentext);
-		if (paragraphs.indexOf(para)==-1) {
-			var text=cm.getValue();
-			var paratext=rule.makeParagraph(para)
-			var at=text.indexOf(paratext);
-			if (at>-1) {
-				var pos=cm.doc.posFromIndex(at);
-				//scroll to last line , so that the paragraph will be at top
-				cm.scrollIntoView({line:cm.doc.lineCount()-1,ch:0})
-				pos.line--;
-				cm.scrollIntoView(pos);
-			}
+		var text=cm.getValue();
+		var at=text.indexOf(t);
+		if (at>-1) {
+			var pos=cm.doc.posFromIndex(at);
+			//scroll to last line , so that the paragraph will be at top
+			cm.scrollIntoView({line:cm.doc.lineCount()-1,ch:0})
+			pos.line--;
+			cm.scrollIntoView(pos);
 		}
+	}
+	/*
+			var screentext=this.getScreenText();
+	*/
+	,onGoKepan:function(kepan) {
+		var rule=this.getDocRule();
+		var kepantext=rule.makeKepan(kepan);
+		this.scrollToText(kepantext);
+	}
+	,onGoPara:function(para){
+		var rule=this.getDocRule();
+		var paratext=rule.makeParagraph(para);
+		this.scrollToText(paratext);
 	}
 	,onNDefLoaded:function(arg){
 		this.context.store.unlistenAll(this);
@@ -116,7 +124,7 @@ var CMView=React.createClass({
 		}
 	}
 	,onLoaded:function(res){
-		if (res.side!=this.props.side) return;
+		if (res.side!==this.props.side) return;
 		var cm=this.refs.cm.getCodeMirror();
 		cm.setValue(res.data);
 	}
