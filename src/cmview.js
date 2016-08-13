@@ -1,13 +1,15 @@
 var React=require("react");
+var ReactDOM=require("react-dom");
 var E=React.createElement;
 var PT=React.PropTypes;
 var CodeMirror=require("ksana-codemirror").Component;
 var TopRightMenu=require("./toprightmenu");
+var NotePopup=require("./notepopup");
 require("./loadfile");
 
 var CMView=React.createClass({
 	getInitialState:function(){
-		return {data:this.props.data||"empty"}
+		return {data:this.props.data||"empty",popupX:0,popupY:0,popupText:""}
 	}
 	,contextTypes:{
 		store:PT.object,
@@ -23,6 +25,41 @@ var CMView=React.createClass({
 		this.context.store.listen("gopara",this.onGoPara,this);
 		this.context.store.listen("gokepan",this.onGoKepan,this);
 		this.context.store.listen("loaded",this.onLoaded,this);
+		this.context.store.listen("showfootnote",this.showfootnote,this);
+		this.context.store.listen("hidefootnote",this.hidefootnote,this);
+	}
+	,hasFootnoteInScreen:function(note){
+		var screentext=this.getScreenText();
+		var rule=this.getDocRule();
+		var n=rule.makeFootnote(note);
+		var m=screentext.match(rule.patterns.footnote);
+		if (m) {
+			var at=m.indexOf(n);
+			return at>-1;
+		}	
+		return false;
+	}
+	,popupFootnote:function(){
+			var rule=this.getDocRule();
+			var ndeffile=rule.getNoteFile(this.note);
+			var ndefs=this.context.getter("fileSync",ndeffile);
+			this.setState({popupX:this.popupX,popupY:this.popupY,
+				popupW:this.popupW,popupH:this.popupH,
+				popupText:ndefs[this.note]})
+	}
+	,showfootnote:function(opts){
+		if (this.hasFootnoteInScreen(opts.note)){
+			var n=ReactDOM.findDOMNode(this).getBoundingClientRect();
+			this.popupX=opts.x-n.left; this.popupY=opts.y-n.top;
+			this.popupW=n.width; this.popupH=n.height;
+			this.note=opts.note;
+			this.loadNote(opts.note);
+		}
+	}
+	,hidefootnote:function(note){
+		if (this.hasFootnoteInScreen(note)){
+
+		}
 	}
 	,componentDidMount:function(){
 		this.defaultListeners();
@@ -48,7 +85,7 @@ var CMView=React.createClass({
 			var pos=cm.doc.posFromIndex(at);
 			//scroll to last line , so that the paragraph will be at top
 			cm.scrollIntoView({line:cm.doc.lineCount()-1,ch:0})
-			pos.line--;
+			if (pos.line) pos.line--;
 			cm.scrollIntoView(pos);
 		}
 	}
@@ -57,7 +94,7 @@ var CMView=React.createClass({
 	*/
 	,onGoKepan:function(kepan) {
 		var rule=this.getDocRule();
-		var kepantext=rule.makeKepan(kepan);
+		var kepantext=rule.makeKepan(kepan+" ");//prevent 37.1 jump to 37.10
 		this.scrollToText(kepantext);
 	}
 	,onGoPara:function(para){
@@ -68,8 +105,7 @@ var CMView=React.createClass({
 	,onNDefLoaded:function(arg){
 		this.context.store.unlistenAll(this);
 		this.defaultListeners();
-
-		this.markViewport();
+		this.popupFootnote();
 	}
 	,markViewport:function(){
 		var cm=this.refs.cm.getCodeMirror();
@@ -77,29 +113,13 @@ var CMView=React.createClass({
 		this.vpfrom=-1;//force onViewport
 		this.onViewportChange(cm,vp.from,vp.to);
 		var rule=this.getDocRule();
-		rule.setActionHandler(this.context.action);
 	}
-	,getNoteFile:function(cm,nline){
-		if (!nline&&nline!==0) {
-			var c=cm.doc.getCursor();
-			nline=c.line;
-		}
+	,loadNote:function(note){
 		var rule=this.getDocRule();
-		if (!rule)return;
-		var line=cm.doc.getLine(nline);
-		var notes=rule.getNotes(line);
-		if (notes&&notes.length) {
-			return rule.getNoteFile(notes[0]);
-		}
-	}
-	,loadNote:function(cm,line){
-		var filename=this.getNoteFile(cm,line);
-		if (!filename) {
-			this.markViewport();
-			return;
-		}
-		if (this.context.getter("fileSync",filename)){
-			this.markViewport();
+		var filename=rule.getNoteFile(note);
+		var d=this.context.getter("fileSync",filename);
+		if (d){
+			this.popupFootnote();
 		} else {
 			this.context.store.unlistenAll(this);
 			this.context.store.listen("loaded",this.onNDefLoaded,this);
@@ -107,9 +127,9 @@ var CMView=React.createClass({
 		}
 	}
 	,onCursorActivity:function(cm){
-		var c=cm.doc.getCursor();
-		if (this.activeline==c.line) return;
-		this.loadNote(cm,c.line);
+		//var c=cm.doc.getCursor();
+		//if (this.activeline==c.line) return;
+		//this.loadNote(cm,c.line);
 	}
 	,onSetDoc:function(side,filename){
 		this.context.getter("setDoc",side,filename);
@@ -126,13 +146,16 @@ var CMView=React.createClass({
 	,onLoaded:function(res){
 		if (res.side!==this.props.side) return;
 		var cm=this.refs.cm.getCodeMirror();
+
+		var rule=this.getDocRule();
+		rule.setActionHandler(this.context.action);
 		cm.setValue(res.data);
 	}
 	,onViewportChange:function(cm,from,to) {
 		var rule=this.getDocRule();
 		if (!rule)return;
 		if (this.vpfrom==from && this.vpto==to)return;
-		
+
 		var clearMarksBeyondViewport=function(f,t){
 			var M=cm.doc.findMarks({line:0,ch:0},{line:f-1,ch:65536});
 			M.forEach(function(m){m.clear()});
@@ -143,18 +166,22 @@ var CMView=React.createClass({
 
 		if (this.vptimer) clearTimeout(this.vptimer);
 		this.vptimer=setTimeout(function(){ //marklines might trigger viewport change
-			rule.clearNote();			
+			//rule.clearNote();
 			var vp=cm.getViewport(); //use current viewport instead of from,to
-			clearMarksBeyondViewport(vp.from,vp.to+20);
-			var ndeffile=this.getNoteFile(cm);
-			var ndefs=this.context.getter("fileSync",ndeffile);
-			rule.markLines(cm,vp.from,vp.to+20,ndefs);
+			clearMarksBeyondViewport(vp.from,vp.to+10);
+			rule.markLines(cm,vp.from,vp.to+10,{note:true,pagebreak:true,link:true});
 			this.vpfrom=vp.from,this.vpto=vp.to;
+
 		}.bind(this),500); 
 		//might be big enough, otherwise onViewport will be trigger again, causing endless loop
 	}
 	,render:function(){
+		var rule=this.getDocRule();
 		return E("div",{},
+			E(NotePopup,{x:this.state.popupX,y:this.state.popupY,
+				w:this.state.popupW,h:this.state.popupH,
+				rule,
+				text:this.state.popupText}),
 			E(TopRightMenu,{side:this.props.side,onSetDoc:this.onSetDoc,
 				buttons:this.props.docs,selected:this.props.doc}),
 	  	E(CodeMirror,{ref:"cm",value:"",theme:"ambiance",readOnly:true,

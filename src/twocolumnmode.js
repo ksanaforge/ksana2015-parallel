@@ -46,7 +46,8 @@ var modemain = React.createClass({
 });
 var styles={
   topcontainer:{display:"flex"},
-  controls:{flex:1,background:'gray',height:"100%",overflowY:"scroll",overflowX:"hidden"},
+  controls:{flex:1,background:'gray',fontSize:"75%",
+  height:"100%",overflowY:"scroll",overflowX:"hidden"},
   body:{flex:4},
 }
 module.exports=modemain;

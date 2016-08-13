@@ -30,4 +30,5 @@ var ControlPanel = React.createClass({
       E(TreeToc,{toc:this.state.toc,onSelect:this.onSelect}));
   }
 });
+
 module.exports=ControlPanel;
