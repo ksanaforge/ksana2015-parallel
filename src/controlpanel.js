@@ -27,7 +27,8 @@ var ControlPanel = React.createClass({
   	return E("div",{style:this.props.style},
       //E("span",{},"Search"),
       //E("input",{}),
-      E(TreeToc,{toc:this.state.toc,onSelect:this.onSelect}));
+      E(TreeToc,{opts:{rainbow:true},
+        toc:this.state.toc,onSelect:this.onSelect}));
   }
 });
 
