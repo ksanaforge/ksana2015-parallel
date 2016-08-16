@@ -57,9 +57,10 @@ var TocResult=React.createClass({
 		var n=parseInt(e.target.dataset.n);
 		if (isNaN(n)) {
 			n=parseInt(e.target.parentElement.dataset.n);
-			console.log(n)
 		}
-		this.props.onSelect(this,this.props.toc[n]);
+		if (this.props.toc[n]){
+			this.props.onSelect(this,this.props.toc[n]);			
+		}
 	}
 	,renderNode:function(n,key){
 		var item=this.props.toc[n];

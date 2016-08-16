@@ -26,9 +26,11 @@ var ControlPanel = React.createClass({
   }
   ,renderToc:function(){
     if(this.state.tofind.trim()){
-      return E(TocResult,{tofind:this.state.tofind,toc:this.state.toc
+      return [E("br",{key:1}),
+        E(TocResult,{key:2,tofind:this.state.tofind,toc:this.state.toc
         ,order:this.state.order
-        ,onSelect:this.onSelect});
+        ,onSelect:this.onSelect})
+        ];
     }else{
       return E(TreeToc,{opts:{rainbow:true},
         toc:this.state.toc,onSelect:this.onSelect});
@@ -40,7 +42,6 @@ var ControlPanel = React.createClass({
   ,render:function(){
   	return E("div",{style:this.props.style},
       E(InputBox,{onInputChanged:this.onInputChanged}), 
-      E("br"),
       E("br"),
       this.renderToc()
     );

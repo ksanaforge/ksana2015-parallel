@@ -4,7 +4,7 @@ var PT=React.PropTypes;
 
 var InputBox=React.createClass({
 	getInitialState:function(){
-		return {tofind:"",order:1}
+		return {tofind:"",order:1,focusing:false}
 	}
 	,propTypes:{
 		onInputChanged:PT.func.isRequired
@@ -12,18 +12,20 @@ var InputBox=React.createClass({
   ,onChange:function(e){
     var tofind=e.target.value;
     this.setState({tofind});
-    clearTimeout(this.timer);
-    this.timer=setTimeout(function(){
+    clearTimeout(this.timer1);
+    this.timer1=setTimeout(function(){
     	this.props.onInputChanged(this.state.tofind,this.state.order);
     }.bind(this),300);
   }
   ,onChangeOrder:function(e){
   	var order=parseInt(e.target.value);
+  	clearTimeout(this.timer2);
+  	this.refs.input.focus();
   	this.setState({order});
   	this.props.onInputChanged(this.state.tofind,order);
   }
   ,sortOption:function(){
-  	if (this.state.tofind.trim()) {
+  	if (this.state.tofind.trim() && this.state.focusing) {
   		return [
   		  E("br",{key:1})
         ,E("label",{key:2},E("input",{onChange:this.onChangeOrder,
@@ -35,9 +37,21 @@ var InputBox=React.createClass({
       ]
   	}
   }
+  ,onFocus:function(){
+  	this.setState({focusing:true});
+  }
+  ,onBlur:function(){
+  	clearTimeout(this.timer2);
+  	this.timer2=setTimeout(function(){
+  		this.setState({focusing:false});
+  	}.bind(this),500);
+  }
 	,render:function(){
 		return E("div",{style:styles.inputBox},
         E("input",{placeholder:"Search",style:styles.input,
+        	ref:"input",
+        	onFocus:this.onFocus,
+        	onBlur:this.onBlur,
           value:this.state.tofind,onChange:this.onChange})
         ,this.sortOption()
      );
@@ -45,6 +59,6 @@ var InputBox=React.createClass({
 });
 module.exports=InputBox;
 var styles={
-  inputBox:{position:"fixed",zIndex:200, left:15,top:10,opacity:0.7},
+  inputBox:{position:"fixed",zIndex:200, left:15,top:10,opacity:0.6},
   input:{fontSize:"120%", width:210,borderRadius:5,background:"silver",outline:"none",border:"0px"}
 }
