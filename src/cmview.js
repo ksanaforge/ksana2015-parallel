@@ -23,6 +23,7 @@ var CMView=React.createClass({
 	}
 	,defaultListeners:function(){
 		this.context.store.listen("gopara",this.onGoPara,this);
+		this.context.store.listen("leavingfrom",this.onLeavingFrom,this);
 		this.context.store.listen("gokepan",this.onGoKepan,this);
 		this.context.store.listen("loaded",this.onLoaded,this);
 		this.context.store.listen("showfootnote",this.showfootnote,this);
@@ -38,6 +39,27 @@ var CMView=React.createClass({
 			return at>-1;
 		}	
 		return false;
+	}
+	,leavingFrom:null
+	,leavingClass:""
+	,onLeavingFrom:function(link){
+		if(this.leavingFrom) {
+				this.leavingFrom.replacedWith.className=this.leavingClass;
+				this.leavingFrom=null;
+		}
+		var cm=this.refs.cm.getCodeMirror();
+		var screentext=this.getScreenText();
+		var vp=cm.getViewport();
+		var i=screentext.indexOf(link);
+		if (i>-1) {
+			var pos=cm.posFromIndex(i+cm.indexFromPos({line:vp.from,ch:1}));
+			var marks=cm.findMarks(pos,{line:pos.line,ch:pos.ch+link.length});
+			if (marks.length && marks[0].replacedWith) {
+				this.leavingClass=marks[0].replacedWith.className;
+				this.leavingFrom=marks[0];
+				marks[0].replacedWith.className="link_visited";
+			}
+		}
 	}
 	,popupFootnote:function(){
 			var rule=this.getDocRule();
