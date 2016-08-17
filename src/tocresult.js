@@ -35,6 +35,10 @@ var TocResult=React.createClass({
 		}
 		if (order===2) this.sortByDepth(res);
 		else if (order===3) this.sortByLength(res);
+		if (res.length>300) {
+			res.length=300;
+			res.push("only first 300 matches are shown");
+		}
 		return res;
 	}
 	,componentWillReceiveProps:function(nextProps){
@@ -64,6 +68,9 @@ var TocResult=React.createClass({
 	}
 	,renderNode:function(n,key){
 		var item=this.props.toc[n];
+		if (typeof n=="string") {
+			return E("div",{key},n);
+		}
 		var hl=this.highlightText(item.t);
 		return E("div",{className:"foundline",key,onClick:this.onSelect,"data-n":n},
 			E("div",{style:{fontFamily:item.f}},hl)
