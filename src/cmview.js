@@ -203,11 +203,16 @@ var CMView=React.createClass({
 		}.bind(this),400); 
 		//might be big enough, otherwise onViewport will be trigger again, causing endless loop
 	}
+	,copiedText:""
 	,onCopy:function(cm,evt){
 		var rule=this.getDocRule();
-		if (rule.excerptCopy) {
-			evt.target.value=rule.excerptCopy(evt.target.value, this.text, cm.indexFromPos(cm.getCursor()));
-			evt.target.select();//reselect the hidden textarea
+		if (this.copiedText===evt.target.value) {
+			if (rule.excerptCopy){
+				evt.target.value=rule.excerptCopy(evt.target.value, this.text, cm.indexFromPos(cm.getCursor()));
+				evt.target.select();//reselect the hidden textarea
+			}
+		} else {
+			this.copiedText=evt.target.value;
 		}
 	}
 	,render:function(){
