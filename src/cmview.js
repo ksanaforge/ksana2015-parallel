@@ -174,6 +174,7 @@ var CMView=React.createClass({
 
 		var rule=this.getDocRule();
 		rule.setActionHandler(this.context.action);
+		this.text=res.data;
 		cm.setValue(res.data);
 	}
 	,onViewportChange:function(cm,from,to) {
@@ -202,6 +203,13 @@ var CMView=React.createClass({
 		}.bind(this),400); 
 		//might be big enough, otherwise onViewport will be trigger again, causing endless loop
 	}
+	,onCopy:function(cm,evt){
+		var rule=this.getDocRule();
+		if (rule.excerptCopy) {
+			evt.target.value=rule.excerptCopy(evt.target.value, this.text, cm.indexFromPos(cm.getCursor()));
+			evt.target.select();//reselect the hidden textarea
+		}
+	}
 	,render:function(){
 		var rule=this.getDocRule();
 		return E("div",{},
@@ -213,6 +221,7 @@ var CMView=React.createClass({
 				buttons:this.props.docs,selected:this.props.doc}),
 	  	E(CodeMirror,{ref:"cm",value:"",theme:"ambiance",readOnly:true,
   	  onCursorActivity:this.onCursorActivity
+  	  ,onCopy:this.onCopy
   	  ,onViewportChange:this.onViewportChange})
   	 )
 	}
