@@ -71,9 +71,21 @@ var TaishoView=React.createClass({
 		this.pointers=pointers;
 		cm.setValue(text);
 	}
+	,getPointerAtCursor:function(cm,cursor){
+		var textpos=cm.indexFromPos(cursor)-cursor.line;
+		var rule=this.getDocRule();
+		var bol=!cursor.ch;
+		var pointer=rule.cursor2pointer(textpos,this.data,bol);
+		return pointer;
+	}
 	,onCursorActivity:function(cm){
-		var cursor=cm.listSelections();
-		//console.log(cursor);
+		clearTimeout(this.cursortimer);
+		this.cursortimer=setTimeout(function(){
+			var cm=this.refs.cm.getCodeMirror();
+			var pointer=this.getPointerAtCursor(cm,cm.getCursor());
+			var rule=this.getDocRule();
+			console.log(pointer,rule.formatPointer(pointer))
+		}.bind(this),300);
 	}
 	,pointers:[]
 	,lineNumberFormatter:function(line){
