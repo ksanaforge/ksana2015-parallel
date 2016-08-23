@@ -1,11 +1,14 @@
 var React=require("react");
 var ReactDOM=require("react-dom");
+require("./loadfile");
+
 var E=React.createElement;
 var PT=React.PropTypes;
 var CodeMirror=require("ksana-codemirror").Component;
 var TopRightMenu=require("./toprightmenu");
 var NotePopup=require("./notepopup");
-require("./loadfile");
+var coordinate=require("./coordinate");
+var verbose=true;
 
 var TaishoView=React.createClass({
 	getInitialState:function(){
@@ -18,21 +21,25 @@ var TaishoView=React.createClass({
 	}
 	,componentWillReceiveProps:function(nextProps) {
 		if (nextProps.doc!==this.props.doc) {
-			this.context.getter("file",{filename:nextProps.doc,side:nextProps.side});	
+			this.context.getter("file",{filename:nextProps.doc,side:nextProps.side,cb:this.onLoaded});
 		}
 	}
 	,componentDidMount:function(){
 		this.defaultListeners();
 		if (this.props.doc) {
-			this.context.getter("file",{filename:this.props.doc,side:this.props.side});
+			this.context.getter("file",{filename:this.props.doc,side:this.props.side,cb:this.onLoaded});
 		}
 	}
 	,onCopy:function(cm,event){
-		//event.target.value=event.target.value.replace(/[，！。；：]/g,"");
-		//event.target.select();
+		var rp=coordinate.getRangePointer(this.data,this.rule,cm);
+		var r=this.rule.unpackRange(rp);
+		if (verbose) console.log(this.rule.formatPointer(r[0]),this.rule.formatPointer(r[1]));
+
+		event.target.value="@T"+rp.toString(16);
+		event.target.select();
 	}
 	,defaultListeners:function(){
-		this.context.store.listen("loaded",this.onLoaded,this);
+		//this.context.store.listen("loaded",this.onLoaded,this); , callback supply in getter
 		this.context.store.listen("layout",this.onLayout,this);
 		this.context.store.listen("toggleLineNumber",this.onToggleLineNumber,this);
 	}
@@ -48,6 +55,7 @@ var TaishoView=React.createClass({
 	,onLayout:function(mode){
 		var rule=this.getDocRule();
 		if (!rule)return;
+		this.rule=rule;
 		var cm=this.refs.cm.getCodeMirror();
 		var {pointers,text}=rule.breakline(this.data,mode||"lb");
 		this.pointers=pointers;
@@ -62,51 +70,50 @@ var TaishoView=React.createClass({
 	,onLoaded:function(res){
 		if (res.side!==this.props.side) return;
 		var cm=this.refs.cm.getCodeMirror();
-
-		var rule=this.getDocRule();
-		rule.setActionHandler(this.context.action);
-		rule.afterLoad(res.data);
-		var {pointers,text}=rule.breakline(res.data,"lb");
+		this.rule=this.getDocRule();
+		this.rule.setActionHandler(this.context.action);
+		this.rule.afterLoad(res.data);
+		var {pointers,text}=this.rule.breakline(res.data,"lb");
 		this.data=res.data;
 		this.pointers=pointers;
 		cm.setValue(text);
 	}
-	,getPointerAtCursor:function(cm,cursor){
-		var textpos=cm.indexFromPos(cursor)-cursor.line;
-		var rule=this.getDocRule();
-		var bol=!cursor.ch;
-		var pointer=rule.cursor2pointer(textpos,this.data,bol);
-		return pointer;
+
+	,atPointer:function(pointer){
+		if (verbose) console.log(pointer,this.rule.formatPointer(pointer));
 	}
 	,onCursorActivity:function(cm){
 		clearTimeout(this.cursortimer);
 		this.cursortimer=setTimeout(function(){
 			var cm=this.refs.cm.getCodeMirror();
-			var pointer=this.getPointerAtCursor(cm,cm.getCursor());
-			var rule=this.getDocRule();
-			console.log(pointer,rule.formatPointer(pointer))
+			var pointer=coordinate.getPointer(this.data,this.rule,cm,cm.getCursor());
+			this.atPointer(pointer);
 		}.bind(this),300);
 	}
 	,pointers:[]
 	,lineNumberFormatter:function(line){
-		var rule=this.getDocRule();
-		if (!rule)return line;
+		if (!this.rule)return line;
 		var pointer=this.pointers[line-1];
 		if (!pointer) return "";
 
-		var marker=rule.formatPointer(pointer);
+		var marker=this.rule.formatPointer(pointer);
 
 		marker=marker.substr(3,7);
 		while (marker[0]=="0")marker=marker.substr(1);
 		return marker;
+	}
+	,onBeforeChange:function(cm,chobj){
+		if (chobj.origin=="setValue") return;
+		chobj.cancel();
 	}
 	,render:function(){
 		var Menu=this.props.menu||TopRightMenu;
 		return E("div",{},
 			E(Menu,{side:this.props.side,onSetDoc:this.onSetDoc,
 				buttons:this.props.docs,selected:this.props.doc}),
-	  	E(CodeMirror,{ref:"cm",value:"",theme:"ambiance",readOnly:true
+	  	E(CodeMirror,{ref:"cm",value:"",theme:"ambiance"
 	  		,onCopy:this.onCopy
+	  		,onBeforeChange:this.onBeforeChange
 	  		,lineNumbers:true
 	  		,lineNumberFormatter:this.lineNumberFormatter
 	  		,onCursorActivity:this.onCursorActivity})

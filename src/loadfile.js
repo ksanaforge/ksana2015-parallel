@@ -35,11 +35,19 @@ var loadscriptcb=function(data){
 	if (loadingobj) {
 		var o=JSON.parse(JSON.stringify(loadingobj));
 		o.data=data;
+		for (var key in loadingobj){
+			if (typeof loadingobj[key]=="function") o[key]=loadingobj[key];
+		}
 	} else {
 		var o={filename:loadingfilename,data};
 	}
 	
-	action("loaded",o);
+	if (o.cb) {
+		o.cb(o);
+	} else {
+		action("loaded",o);	
+	}
+	
 	loadingfilename="";
 	loadingobj=null;
 	setTimeout(fireEvent,0);
