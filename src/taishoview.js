@@ -32,16 +32,23 @@ var TaishoView=React.createClass({
 	}
 	,onCopy:function(cm,event){
 		var rp=coordinate.getRangePointer(this.data,this.rule,cm);
-		var r=this.rule.unpackRange(rp);
-		if (verbose) console.log(this.rule.formatPointer(r[0]),this.rule.formatPointer(r[1]));
-
-		event.target.value="@T"+rp.toString(16);
+		var f=this.rule.formatPointer(rp);
+		event.target.value=f;
 		event.target.select();
 	}
 	,defaultListeners:function(){
 		//this.context.store.listen("loaded",this.onLoaded,this); , callback supply in getter
 		this.context.store.listen("layout",this.onLayout,this);
 		this.context.store.listen("toggleLineNumber",this.onToggleLineNumber,this);
+		this.context.store.listen("goto",this.goto,this);
+	}
+	,goto:function(str){
+		if(this.props.side)return;
+
+		var p=this.rule.parsePointer(str);
+		if (!p) return;
+
+		this.context.getter("setDoc",this.props.side,p.file);
 	}
 	,getDocRule:function(doc){
 		doc=doc||this.props.doc;
@@ -51,6 +58,7 @@ var TaishoView=React.createClass({
 				return docs[i].rule;
 			}
 		}
+		return this.props.rule;
 	}
 	,onLayout:function(mode){
 		var rule=this.getDocRule();
@@ -98,7 +106,8 @@ var TaishoView=React.createClass({
 
 		var marker=this.rule.formatPointer(pointer);
 
-		marker=marker.substr(3,7);
+		marker=marker.substr(5,7);
+
 		while (marker[0]=="0")marker=marker.substr(1);
 		return marker;
 	}
@@ -109,8 +118,7 @@ var TaishoView=React.createClass({
 	,render:function(){
 		var Menu=this.props.menu||TopRightMenu;
 		return E("div",{},
-			E(Menu,{side:this.props.side,onSetDoc:this.onSetDoc,
-				buttons:this.props.docs,selected:this.props.doc}),
+			E(Menu,{side:this.props.side,buttons:this.props.docs,selected:this.props.doc}),
 	  	E(CodeMirror,{ref:"cm",value:"",theme:"ambiance"
 	  		,onCopy:this.onCopy
 	  		,onBeforeChange:this.onBeforeChange

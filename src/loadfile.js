@@ -69,7 +69,11 @@ var _loadfile=function(obj){
 	if (datafiles[filename]) {
 		o=JSON.parse(JSON.stringify(obj));
 		o.data=datafiles[filename];
-		action("loaded",o);
+		if (obj.cb){
+			obj.cb(o);
+		} else {
+			action("loaded",o);	
+		} 
 		setTimeout(fireEvent,0);
 	} else {
 		loadingfilename=filename;

@@ -17,10 +17,10 @@ var TwoColumn = React.createClass({
   	return E("div",{style:this.props.style},
   		E("div",{style:{display:'flex'}},
   			E("div",{style:{flex:1}},
-  				E(LeftView,{side:0,menu:this.props.leftMenu,
+  				E(LeftView,{side:0,menu:this.props.leftMenu,rule:this.props.rule,
             doc:this.props.leftDoc,docs:this.props.leftDocs})),
   			E("div",{style:{flex:1}},
-  				E(RightView,{side:1,menu:this.props.rightMenu,
+  				E(RightView,{side:1,menu:this.props.rightMenu,rule:this.props.rule,
             doc:this.props.rightDoc,docs:this.props.rightDocs}))
   		)
   	)
