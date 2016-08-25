@@ -8,7 +8,7 @@ var CodeMirror=require("ksana-codemirror").Component;
 var TopRightMenu=require("./toprightmenu");
 var NotePopup=require("./notepopup");
 var coordinate=require("./coordinate");
-var verbose=true;
+var verbose=false;
 
 var TaishoView=React.createClass({
 	getInitialState:function(){
@@ -22,6 +22,8 @@ var TaishoView=React.createClass({
 	,componentWillReceiveProps:function(nextProps) {
 		if (nextProps.doc!==this.props.doc) {
 			this.context.getter("file",{filename:nextProps.doc,side:nextProps.side,cb:this.onLoaded});
+		} else if (nextProps.scrollTo!==this.props.scrollTo) {
+			this.scrollIntoView(nextProps.scrollTo);
 		}
 	}
 	,componentDidMount:function(){
@@ -31,7 +33,7 @@ var TaishoView=React.createClass({
 		}
 	}
 	,onCopy:function(cm,event){
-		var rp=coordinate.getRangePointer(this.data,this.rule,cm);
+		var rp=coordinate.textPosToRange(this.data,this.rule,cm);
 		var f=this.rule.formatPointer(rp);
 		event.target.value=f;
 		event.target.select();
@@ -47,8 +49,9 @@ var TaishoView=React.createClass({
 
 		var p=this.rule.parsePointer(str);
 		if (!p) return;
+		var scrollTo=this.rule.formatPointer(this.rule.packRange(p.from,p.to));
 
-		this.context.getter("setDoc",this.props.side,p.file);
+		this.context.getter("setDoc",{side:this.props.side,filename:p.file,scrollTo});
 	}
 	,getDocRule:function(doc){
 		doc=doc||this.props.doc;
@@ -85,8 +88,20 @@ var TaishoView=React.createClass({
 		this.data=res.data;
 		this.pointers=pointers;
 		cm.setValue(text);
+		this.scrollIntoView(this.props.scrollTo);
 	}
+	,scrollIntoView:function(rangeHuman){
+		if (!this.data||!this.rule)return;
+		if (this.scrollTo!==rangeHuman) {
+			var cm=this.refs.cm.getCodeMirror();
+			var parsed=this.rule.parsePointer(rangeHuman);
+			var R=coordinate.rangeToTextPos(this.data,this.rule,cm,parsed.range,this.pointers);
 
+			cm.markText(R.from,R.to,{className:"scrollTo",clearOnEnter:true});
+			cm.scrollIntoView({from:R.from,to:R.to});
+			this.scrollTo=rangeHuman;
+		}
+	}
 	,atPointer:function(pointer){
 		if (verbose) console.log(pointer,this.rule.formatPointer(pointer));
 	}
@@ -94,7 +109,7 @@ var TaishoView=React.createClass({
 		clearTimeout(this.cursortimer);
 		this.cursortimer=setTimeout(function(){
 			var cm=this.refs.cm.getCodeMirror();
-			var pointer=coordinate.getPointer(this.data,this.rule,cm,cm.getCursor());
+			var pointer=coordinate.textPosToPointer(this.data,this.rule,cm,cm.getCursor());
 			this.atPointer(pointer);
 		}.bind(this),300);
 	}

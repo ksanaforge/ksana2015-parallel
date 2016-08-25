@@ -43,7 +43,7 @@ var loadscriptcb=function(data){
 	}
 	
 	if (o.cb) {
-		o.cb(o);
+		setTimeout(function(){o.cb(o)},0);
 	} else {
 		action("loaded",o);	
 	}
@@ -70,7 +70,7 @@ var _loadfile=function(obj){
 		o=JSON.parse(JSON.stringify(obj));
 		o.data=datafiles[filename];
 		if (obj.cb){
-			obj.cb(o);
+			setTimeout(function(){obj.cb(o)},0);
 		} else {
 			action("loaded",o);	
 		} 

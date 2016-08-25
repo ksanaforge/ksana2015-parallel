@@ -11,9 +11,9 @@ var modemain = React.createClass({
   getInitialState:function() {
     return {rightDoc:this.props.rightDoc,leftDoc:this.props.LeftDoc};
   }
-  ,onSetDoc:function(side,filename){
-    if (side===0) this.setState({leftDoc:filename});
-    else if (side===1) this.setState({rightDoc:filename});
+  ,onSetDoc:function({side,filename,scrollTo}){
+    if (side===0) this.setState({leftDoc:filename,scrollTo});
+    else if (side===1) this.setState({rightDoc:filename,scrollTo});
   }
   ,componentDidMount:function(){
     registerGetter("setDoc",this.onSetDoc);
@@ -36,6 +36,7 @@ var modemain = React.createClass({
     props2.style=styles.body;
     props2.rightDoc=this.state.rightDoc||props2.rightDoc;
     props2.leftDoc=this.state.leftDoc||props2.leftDoc;
+    props2.scrollTo=this.state.scrollTo;
 
     return E("div",
       {style:styles.topcontainer},
