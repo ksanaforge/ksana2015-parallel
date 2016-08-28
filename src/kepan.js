@@ -4,6 +4,19 @@ var PT=React.PropTypes;
 var TreeToc=require("ksana2015-treetoc").Component;
 var TocResult=require("./tocresult");
 var InputBox=require("./inputbox");
+
+var KepanControl=React.createClass({
+  onClick:function(){
+    this.props.onReset();
+  },
+  render:function(){
+    return E("div",{style:{position:"relative"}},
+        E("button",{onClick:this.onClick,
+          style:{position:"absolute",right:3,top:10,zIndex:500}},"收")
+    )
+  }
+});
+
 var KepanPanel = React.createClass({
   getInitialState:function() {
     return {filename:"jin",toc:[],tofind:"",order:0};
@@ -40,9 +53,17 @@ var KepanPanel = React.createClass({
   ,onInputChanged:function(tofind,order){
     this.setState({tofind,order});
   }
+  ,onReset:function(){
+    var toc=this.state.toc;
+    for (var i=1;i<toc.length;i++) {
+      toc[i].o=false;
+    }
+    this.setState({toc});
+  }
   ,render:function(){
   	return E("div",{style:this.props.style},
       E(InputBox,{onInputChanged:this.onInputChanged}), 
+      E(KepanControl,{onReset:this.onReset}),
       E("br"),
       this.renderToc()
     );

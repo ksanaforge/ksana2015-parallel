@@ -60,5 +60,5 @@ var InputBox=React.createClass({
 module.exports=InputBox;
 var styles={
   inputBox:{position:"fixed",zIndex:200, left:15,top:10,opacity:0.6},
-  input:{fontSize:"120%", width:210,borderRadius:5,background:"silver",outline:"none",border:"0px"}
+  input:{fontSize:"120%", width:"60%",borderRadius:5,background:"silver",outline:"none",border:"0px"}
 }

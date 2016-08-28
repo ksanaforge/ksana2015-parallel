@@ -152,9 +152,12 @@ var CMView=React.createClass({
 		}
 	}
 	,onCursorActivity:function(cm){
-		//var c=cm.doc.getCursor();
-		//if (this.activeline==c.line) return;
-		//this.loadNote(cm,c.line);
+		var c=cm.doc.getCursor();
+		if (this.activeline==c.line) return;		
+		var rule=this.getDocRule();
+		if (this.activeline) rule.markLine(cm,this.activeline,this.activeline,{note:true,pagebreak:true,link:true});
+		rule.markLine(cm,c.line,c.line,{note:true,pagebreak:true,link:true});
+		this.activeline=c.line;
 	}
 	,onSetDoc:function(side,filename){
 		this.context.getter("setDoc",side,filename);
