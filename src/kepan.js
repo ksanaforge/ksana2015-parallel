@@ -23,6 +23,7 @@ var KepanPanel = React.createClass({
   }
   ,onSelect:function(ctx,node,i,nodes){
     this.context.action("gokepan",node.l);
+    if (node.l2) this.context.action("gokepan",node.l2);
   }
   ,renderToc:function(){
     if(this.state.tofind.trim()){
