@@ -25,6 +25,7 @@ var CMView=React.createClass({
 		this.context.store.listen("gopara",this.onGoPara,this);
 		this.context.store.listen("leavingfrom",this.onLeavingFrom,this);
 		this.context.store.listen("gokepan",this.onGoKepan,this);
+		this.context.store.listen("tocready",this.onTocReady,this);
 		this.context.store.listen("loaded",this.onLoaded,this);
 		this.context.store.listen("showfootnote",this.showfootnote,this);
 		this.context.store.listen("hidefootnote",this.hidefootnote,this);
@@ -39,6 +40,11 @@ var CMView=React.createClass({
 			return at>-1;
 		}	
 		return false;
+	}
+	,onTocReady:function(toc){
+		if (this.props.side)return;
+		var rule=this.getDocRule();
+		rule.setToc(toc);
 	}
 	,leavingFrom:null
 	,leavingClass:""
@@ -178,7 +184,6 @@ var CMView=React.createClass({
 		var rule=this.getDocRule();
 		rule.setActionHandler(this.context.action);
 		var oldtext=this.text;
-		console.log(oldtext)
 		this.text=res.data;
 		cm.setValue(res.data);
 		if (oldtext) {

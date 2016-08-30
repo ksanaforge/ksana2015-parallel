@@ -27,8 +27,7 @@ var KepanPanel = React.createClass({
   	action:PT.func.isRequired
   }
   ,componentDidMount:function(){
-    this.context.getter("file","kepan");
-    this.context.store.listen("loaded",this.treeloaded,this);
+    this.context.getter("file",{filename:"kepan",cb:this.treeloaded});
     this.context.store.listen("openkepan",this.onOpenKepan,this);
   }
   ,findById:function(id){
@@ -49,7 +48,7 @@ var KepanPanel = React.createClass({
     }
   }
   ,treeloaded:function(obj){
-    if (obj.filename!=="kepan")return;
+    this.context.action("tocready",obj.data);
   	this.setState({toc:obj.data});
   }
   ,onSelect:function(ctx,node,i,nodes){
