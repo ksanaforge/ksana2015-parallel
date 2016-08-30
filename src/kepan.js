@@ -43,6 +43,9 @@ var KepanPanel = React.createClass({
     var scrollTo=this.findById(id);
     if (scrollTo>-1) {
       this.setState({scrollTo});
+      var n=this.state.toc[scrollTo];
+      this.context.action("gokepan",n.l);
+      if (n.l2) this.context.action("gokepan",this.state.toc[scrollTo].l2);
     }
   }
   ,treeloaded:function(obj){
