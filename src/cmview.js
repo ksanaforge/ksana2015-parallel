@@ -137,7 +137,7 @@ var CMView=React.createClass({
 		var vp=cm.getViewport();
 		this.vpfrom=-1;//force onViewport
 		this.onViewportChange(cm,vp.from,vp.to);
-		var rule=this.getDocRule();
+		//var rule=this.getDocRule();
 	}
 	,loadNote:function(note){
 		var rule=this.getDocRule();
@@ -160,7 +160,7 @@ var CMView=React.createClass({
 		this.activeline=c.line;
 	}
 	,onSetDoc:function(side,filename){
-		this.context.getter("setDoc",side,filename);
+		this.context.getter("setDoc",{side,filename});
 	}
 	,getDocRule:function(doc){
 		doc=doc||this.props.doc;
@@ -177,8 +177,14 @@ var CMView=React.createClass({
 
 		var rule=this.getDocRule();
 		rule.setActionHandler(this.context.action);
+		var oldtext=this.text;
+		console.log(oldtext)
 		this.text=res.data;
 		cm.setValue(res.data);
+		if (oldtext) {
+			this.markViewport();
+			this.vpfrom=-2; //force mark viewport
+		}
 	}
 	,onViewportChange:function(cm,from,to) {
 		var rule=this.getDocRule();

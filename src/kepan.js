@@ -55,7 +55,7 @@ var KepanPanel = React.createClass({
   }
   ,onScrollTop:function(t){
     var container=ReactDOM.findDOMNode(this);
-    container.parentElement.scrollTop+=t-250;
+    container.parentElement.scrollTop+=t-250;//make it show at middle
   }
   ,renderToc:function(){
     if(this.state.tofind.trim()){
