@@ -1,19 +1,19 @@
-var React=require("react");
-var E=React.createElement;
-var PT=React.PropTypes;
+const React=require("react");
+const E=React.createElement;
+const PT=React.PropTypes;
 
-var Viewers={
+const Viewers={
   default:require('./cmview'),
   taisho:require("./taishoview")
 }
 
-var TwoColumn = React.createClass({
+const TwoColumn = React.createClass({
   getInitialState:function() {
     return {};
   },
   render:function(){
-    var LeftView=Viewers[this.props.leftView||"default"];
-    var RightView=Viewers[this.props.rightView||"default"];
+    const LeftView=Viewers[this.props.leftView||"default"];
+    const RightView=Viewers[this.props.rightView||"default"];
   	return E("div",{style:this.props.style},
   		E("div",{style:{display:'flex'}},
   			E("div",{style:{flex:1}},

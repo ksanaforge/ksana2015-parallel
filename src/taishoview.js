@@ -15,7 +15,7 @@ var TaishoView=React.createClass({
 		return {data:this.props.data||"empty"};
 	}
 	,contextTypes:{
-		store:PT.object,
+		listen:PT.func,
 		getter:PT.func,
 		action:PT.func
 	}
@@ -39,10 +39,9 @@ var TaishoView=React.createClass({
 		event.target.select();
 	}
 	,defaultListeners:function(){
-		//this.context.store.listen("loaded",this.onLoaded,this); , callback supply in getter
-		this.context.store.listen("layout",this.onLayout,this);
-		this.context.store.listen("toggleLineNumber",this.onToggleLineNumber,this);
-		this.context.store.listen("goto",this.goto,this);
+		this.context.listen("layout",this.onLayout,this);
+		this.context.listen("toggleLineNumber",this.onToggleLineNumber,this);
+		this.context.listen("goto",this.goto,this);
 	}
 	,goto:function(str){
 		if(this.props.side)return;

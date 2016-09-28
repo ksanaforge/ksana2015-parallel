@@ -22,13 +22,13 @@ var KepanPanel = React.createClass({
     return {filename:"jin",toc:[],tofind:"",order:0,scrollTo:-1};
   }
   ,contextTypes:{
-  	store:PT.object.isRequired,
+  	listen:PT.func.isRequired,
   	getter:PT.func.isRequired,
   	action:PT.func.isRequired
   }
   ,componentDidMount:function(){
     this.context.getter("file",{filename:"kepan",cb:this.treeloaded});
-    this.context.store.listen("openkepan",this.onOpenKepan,this);
+    this.context.listen("openkepan",this.onOpenKepan,this);
   }
   ,findById:function(id){
     for (var i=0;this.state.toc.length;i++){

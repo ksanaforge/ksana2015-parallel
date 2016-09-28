@@ -1,5 +1,5 @@
 /* jsonp loading text dynamically */
-var {action,store,getter,registerGetter}=require("./model");
+var {action,listen,unlistenAll,getter,registerGetter}=require("./model");
 
 var loadqueue=[];
 var running=false;

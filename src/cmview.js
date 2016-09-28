@@ -12,7 +12,8 @@ var CMView=React.createClass({
 		return {data:this.props.data||"empty",popupX:0,popupY:0,popupText:""}
 	}
 	,contextTypes:{
-		store:PT.object,
+		listen:PT.func,
+		unlistenAll:PT.func,
 		getter:PT.func,
 		action:PT.func
 	}
@@ -22,13 +23,13 @@ var CMView=React.createClass({
 		}
 	}
 	,defaultListeners:function(){
-		this.context.store.listen("gopara",this.onGoPara,this);
-		this.context.store.listen("leavingfrom",this.onLeavingFrom,this);
-		this.context.store.listen("gokepan",this.onGoKepan,this);
-		this.context.store.listen("tocready",this.onTocReady,this);
-		this.context.store.listen("loaded",this.onLoaded,this);
-		this.context.store.listen("showfootnote",this.showfootnote,this);
-		this.context.store.listen("hidefootnote",this.hidefootnote,this);
+		this.context.listen("gopara",this.onGoPara,this);
+		this.context.listen("leavingfrom",this.onLeavingFrom,this);
+		this.context.listen("gokepan",this.onGoKepan,this);
+		this.context.listen("tocready",this.onTocReady,this);
+		this.context.listen("loaded",this.onLoaded,this);
+		this.context.listen("showfootnote",this.showfootnote,this);
+		this.context.listen("hidefootnote",this.hidefootnote,this);
 	}
 	,hasFootnoteInScreen:function(note){
 		var screentext=this.getScreenText();
@@ -134,7 +135,7 @@ var CMView=React.createClass({
 		this.scrollToText(paratext);
 	}
 	,onNDefLoaded:function(arg){
-		this.context.store.unlistenAll(this);
+		this.context.unlistenAll(this);
 		this.defaultListeners();
 		this.popupFootnote();
 	}
@@ -152,8 +153,8 @@ var CMView=React.createClass({
 		if (d){
 			this.popupFootnote();
 		} else {
-			this.context.store.unlistenAll(this);
-			this.context.store.listen("loaded",this.onNDefLoaded,this);
+			this.context.unlistenAll(this);
+			this.context.listen("loaded",this.onNDefLoaded,this);
 			this.context.getter("file",{filename,side:this.props.side});
 		}
 	}
