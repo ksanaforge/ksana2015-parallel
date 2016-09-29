@@ -11,15 +11,16 @@ const CorpusMapping = React.createClass({
     return {};
   },
   componentDidMount:function(){
-
     openCorpus(this.props.leftCorpus,(err,leftCor)=>{
       openCorpus(this.props.rightCorpus,(err2,rightCor)=>{
         this.setState({rightCor,leftCor});
       })
     });
-
   },
   render:function(){
+    if (!this.state.rightCor||!this.state.leftCor) {
+      return E("div",{},"loading");
+    }
     var LeftView=Viewers[this.props.leftView||"default"];
     var RightView=Viewers[this.props.rightView||"default"];
   	return E("div",{style:this.props.style},

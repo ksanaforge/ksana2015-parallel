@@ -5,7 +5,6 @@ var PT=React.PropTypes;
 var CodeMirror=require("ksana-codemirror").Component;
 var TopRightMenu=require("./toprightmenu");
 var NotePopup=require("./notepopup");
-require("./loadfile");
 
 var CMView=React.createClass({
 	getInitialState:function(){
@@ -17,17 +16,12 @@ var CMView=React.createClass({
 		getter:PT.func,
 		action:PT.func
 	}
-	,componentWillReceiveProps:function(nextProps) {
-		if (nextProps.doc!==this.props.doc) {
-			this.context.getter("file",{filename:nextProps.doc,side:nextProps.side});	
-		}
-	}
 	,defaultListeners:function(){
 		this.context.listen("gopara",this.onGoPara,this);
+		this.context.listen("loaded",this.onLoaded,this);
 		this.context.listen("leavingfrom",this.onLeavingFrom,this);
 		this.context.listen("gokepan",this.onGoKepan,this);
 		this.context.listen("tocready",this.onTocReady,this);
-		this.context.listen("loaded",this.onLoaded,this);
 		this.context.listen("showfootnote",this.showfootnote,this);
 		this.context.listen("hidefootnote",this.hidefootnote,this);
 	}
@@ -172,6 +166,7 @@ var CMView=React.createClass({
 	,getDocRule:function(doc){
 		doc=doc||this.props.doc;
 		var docs=this.props.docs;
+		if (!docs)return {};
 		for (var i=0;i<docs.length;i++) {
 			if (docs[i].name==this.props.doc) {
 				return docs[i].rule;

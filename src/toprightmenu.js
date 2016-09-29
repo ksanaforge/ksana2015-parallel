@@ -17,7 +17,7 @@ var TopRightMenu=React.createClass({
 	render:function(){
 		return	E("div",{style:styles.container},
 				E("div",{style:styles.viewcontrols},
-					this.props.buttons.map(this.createButton)
+					this.props.buttons&&this.props.buttons.map(this.createButton)
 				)
 		)
 	}

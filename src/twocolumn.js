@@ -3,7 +3,7 @@ const E=React.createElement;
 const PT=React.PropTypes;
 
 const Viewers={
-  default:require('./cmview'),
+  default:require('./localfileview'),
   taisho:require("./taishoview")
 }
 
