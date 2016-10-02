@@ -63,7 +63,7 @@ const CorpusView=React.createClass({
 	}
 	,onCopy:function(cm,evt){
 		const krange=this.kRangeFromCursor(cm);
-		evt.target.value=this.props.cor.stringify(krange);
+		evt.target.value="@"+this.props.cor.stringify(krange)+';';
 		evt.target.select();//reselect the hidden textarea
 	}
 	,onCursorActivity:function(cm){

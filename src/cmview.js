@@ -6,7 +6,11 @@ const CodeMirror=require("ksana-codemirror").Component;
 const NotePopup=require("./notepopup");
 const Footnote=require("./footnote");
 const Helper=require("./cmviewhelper");
-
+/* TODO
+array of startkpos of each line
+to support one line per p
+and not blank line when crossing page
+*/
 const CMView=React.createClass({
 	getInitialState:function(){
 		return {data:this.props.data||"empty",popupX:0,popupY:0,popupText:""}

@@ -32,7 +32,8 @@ const CorpusNote = React.createClass({
   				E(LeftView,{side:0,cor:this.state.cor,corpus:this.props.corpus,
   					menu:leftMenu,address:this.props.address})),
   			E("div",{style:{flex:1}},
-  				E(RightView,{side:1,menu:this.props.rightMenu}))
+  				E(RightView,{side:1,corpus:this.props.corpus,cor:this.state.cor,
+  					menu:this.props.rightMenu}))
   		)
   	)
   }
