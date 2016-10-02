@@ -3,8 +3,11 @@ var E=React.createElement;
 var PT=React.PropTypes;
 
 var TopRightMenu=React.createClass({
-	setDoc:function(name){
-		this.props.onSetDoc(this.props.side,name);
+	contextTypes:{
+		getter:PT.func
+	}
+	,setDoc:function(filename){
+		this.context.getter("setDoc",{side:this.props.side,filename});
 	}
 	,createButton:function(item,key){
 		var style=styles.button;
