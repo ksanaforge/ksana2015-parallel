@@ -34,10 +34,8 @@ const NoteView=React.createClass({
 			this.setState({renderedText,transclusions});
 		});
 	}
-	,onTransclusionClick:function(e){
-		console.log(e.target.address);
-	}
 	,insertTransclusion:function(cm,address){
+		if (this.findTransclusionAtCursor(cm)) return;
 		this.props.cor.getText(address,(data)=>{
 			const str=data.join("");
 			const cur=cm.getCursor();
@@ -51,6 +49,7 @@ const NoteView=React.createClass({
 	,onPaste:function(cm,evt){
  		const clipboardData = evt.clipboardData || window.clipboardData;
 		const pastedData = clipboardData.getData('Text');
+		
 		const m=pastedData.match(this.props.cor.addressRegex);
 		if (m && m[0]==pastedData) {
 			evt.stopPropagation();
@@ -71,7 +70,7 @@ const NoteView=React.createClass({
 		const s=cm.doc.indexFromPos(start);
 		const e=cm.doc.indexFromPos(end);
 		const t=this.state.transclusions.filter((T)=>{
-			return (s>=T[0] && e<T[0]+T[1]);
+			return (s>T[0] && e<T[0]+T[1]);
 		});
 		if (t.length) return t[0];
 	}
