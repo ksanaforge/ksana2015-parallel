@@ -12,7 +12,8 @@ const CMView=React.createClass({
 		return {data:this.props.data||"empty",popupX:0,popupY:0,popupText:""}
 	}
 	,propTypes:{
-		markViewport:PT.func
+		markViewport:PT.func,
+		onLoaded:PT.func
 	}
 	,contextTypes:{
 		listen:PT.func,
@@ -30,6 +31,11 @@ const CMView=React.createClass({
 	,componentWillUnmount:function(){
 		this.context.unlistenAll();
 	}
+	,jumpToRange:function(start,end){
+		var cm=this.refs.cm.getCodeMirror();
+		cm.markText(start,end,{className:"gotomarker",clearOnEnter:true});
+		cm.scrollIntoView(end,200);
+	}
 	,scrollToText:function(t){
 		var cm=this.refs.cm.getCodeMirror();
 		var text=cm.getValue();
@@ -42,8 +48,11 @@ const CMView=React.createClass({
 			cm.scrollIntoView(pos);
 		}
 	}
+	,getLine:function(i){
+		var cm=this.refs.cm.getCodeMirror();
+		return cm.doc.getLine(i);
+	}
 	,onLoaded:function(res){
-		console.log("loaded",res)
 		if (res.side!==this.props.side) return;
 		var cm=this.refs.cm.getCodeMirror();
 
@@ -56,6 +65,7 @@ const CMView=React.createClass({
 			this.props.markViewport&&this.props.markViewport();
 			this.vpfrom=-2; //force mark viewport
 		}
+		this.props.onLoaded&&this.props.onLoaded(res);
 	}
 	,onCopy:function(cm,evt){
 		this.props.onCopy&&this.props.onCopy(cm,evt);
