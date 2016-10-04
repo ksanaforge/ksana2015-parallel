@@ -98,10 +98,14 @@ const NoteView=React.createClass({
 	}
 	,render:function(){
 		if (!this.props.cor) return E("div",{},"loading");
-	  return	E(CodeMirror,{ref:"cm",
+	  return	E("div",{},
+	  	E(this.props.menu),
+	  	E(CodeMirror,{ref:"cm",
 	  	onCursorActivity:this.onCursorActivity,
 	  	onPaste:this.onPaste,
-	  	value:this.state.renderedText});
+	  	value:this.state.renderedText})
+	  )
+	  ;
 	}
 })
 module.exports=NoteView;

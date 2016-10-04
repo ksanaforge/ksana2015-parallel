@@ -7,7 +7,8 @@ const Viewers={
   defaultnote:require("./noteview")
 }
 const Menus={
-	defaultcorpus:require("./corpusmenu")
+	defaultcorpusmenu:require("./corpusmenu"),
+  defaultnotemenu:require("./notemenu")
 }
 
 const CorpusNote = React.createClass({
@@ -25,7 +26,8 @@ const CorpusNote = React.createClass({
     }
     var LeftView=Viewers[this.props.leftView||"default"];
     var RightView=Viewers[this.props.rightView||"defaultnote"];
-    const leftMenu=Menus[this.props.leftMenu||"defaultcorpus"];
+    const leftMenu=Menus[this.props.leftMenu||"defaultcorpusmenu"];
+    const rightMenu=Menus[this.props.rightMenu||"defaultnotemenu"];
   	return E("div",{style:this.props.style},
   		E("div",{style:{display:'flex'}},
   			E("div",{style:{flex:1}},
@@ -33,7 +35,7 @@ const CorpusNote = React.createClass({
   					menu:leftMenu,address:this.props.address})),
   			E("div",{style:{flex:1}},
   				E(RightView,{side:1,corpus:this.props.corpus,cor:this.state.cor,
-  					menu:this.props.rightMenu}))
+  					menu:rightMenu}))
   		)
   	)
   }

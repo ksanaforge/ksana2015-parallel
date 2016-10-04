@@ -62,6 +62,8 @@ const CorpusView=React.createClass({
 		return cor.makeKRange(startkpos,endkpos);
 	}
 	,onCopy:function(cm,evt){
+		/*1p178a0103-15 copy and paste incorrect*/
+		/* TODO,  address error crossing a page, has line 30 */
 		const krange=this.kRangeFromCursor(cm);
 		evt.target.value="@"+this.props.cor.stringify(krange)+';';
 		evt.target.select();//reselect the hidden textarea
