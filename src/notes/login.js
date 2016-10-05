@@ -1,26 +1,44 @@
 const React=require("react");
 const E=React.createElement;
-//var store=require("../stores/user");
-//var action=require("../actions/user");
+const PT=React.PropTypes;
 const Firebase=require("./firebase");
 const loginbuttonstyle={verticalAlign: "middle",cursor:"pointer"};
-
+const lskey="taisho-corpus.user";
 var LoginBox=React.createClass({
   getInitialState: function () {
-  	const store=Firebase(this.props.dataurl);
+  	const store=Firebase(this.props.datapath);
     return {store,user:null,token:null};
   }
+  ,contextTypes:{
+    action:PT.func,
+    registerGetter:PT.func,
+    unregisterGetter:PT.func
+  }
   ,componentDidMount:function(){
-  	
+  	if (localStorage.getItem(lskey)){
+  		this.googleSignIn();
+  	}
+    this.context.registerGetter("user",this.getUser);
+    this.context.registerGetter("")
+  }
+  ,componentWillUnmount:function(){
+    this.context.unregisterGetter("user");
+  }
+  ,getUser:function(){
+    if (this.state.user) return this.state.user;
   }
   ,signOut:function() {
     this.state.store.logout(function(){
     	this.setState({user:null,token:null});
+    	localStorage.setItem(lskey,"");
+      this.context.action("logout");
     }.bind(this));
   }
   ,googleSignIn:function() {
     this.state.store.login(function(user,token){
     	this.setState({user,token});
+      this.context.action("loggedin",{user,token});
+    	localStorage.setItem(lskey,user.displayName);
     }.bind(this));
   }
   ,renderSignin:function() {

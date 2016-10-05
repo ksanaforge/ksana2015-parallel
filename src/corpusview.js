@@ -22,6 +22,7 @@ const CorpusView=React.createClass({
 		const r=cor.fileOf(range.start);
 		if (!r)return;
 		cor.getFile(r.at,(data)=>{
+			if (!data)return;
 			this.setState({startkpos:r.start});
 			this.context.action("loaded",
 				{filename:r.filename,data:data.join("\n")

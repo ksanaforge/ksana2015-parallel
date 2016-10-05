@@ -4,7 +4,6 @@ const PT=React.PropTypes;
 const ControlPanel=require("./controlpanel");
 const CorpusMapping=require("./corpusmapping");
 var {action,listen,unlistenAll,getter,registerGetter,unregisterGetter}=require("./model");
-
 const CorpusMappingMode=React.createClass({
   getInitialState:function() {
     return {};

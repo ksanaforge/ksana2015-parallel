@@ -1,7 +1,7 @@
-var Firebase=function(dataurl){
+var Firebase=function(path){
 	var auth=null;
 	var rootRef=null;
-	const firebase=dataurl.firebase;
+  const firebase=path.firebase;
 	const login=function(cb) {
     var provider = new firebase.auth.GoogleAuthProvider();
     //provider.addScope('https://www.googleapis.com/auth/plus.login');
@@ -42,7 +42,7 @@ var Firebase=function(dataurl){
 		firebase.auth().signOut();
 		cb&&cb();
 	}
-	var API={login,logout};
+	var API={login,logout,firebase};
 	Object.defineProperty(API,'editable',{
 		get:function (){return auth}
 	})

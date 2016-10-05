@@ -4,10 +4,13 @@ const PT=React.PropTypes;
 const ControlPanel=require("./controlpanel");
 const CorpusNote=require("./corpusnote");
 var {action,listen,unlistenAll,getter,registerGetter,unregisterGetter}=require("./model");
+const Store=require("./notes/notestore");
+
 
 const CorpusNoteMode=React.createClass({
   getInitialState:function() {
-    return {};
+    const store=Store(this.props.datapath);
+    return {store};
   }
   ,componentDidMount:function(){
   }
@@ -23,12 +26,11 @@ const CorpusNoteMode=React.createClass({
     return {action,listen,unlistenAll,getter,registerGetter,unregisterGetter};
   }  
   ,render: function() {
-    var props1=Object.assign({},this.props);
-    props1.style=styles.controls;
+    var props1=Object.assign({},this.props,
+      {style:styles.controls,store:this.state.store});
 
-    var props2=Object.assign({},this.props);
-    props2.style=styles.body;
-    props2.scrollTo=this.state.scrollTo;
+    var props2=Object.assign({},this.props,
+      {style:styles.body,scrollTo:this.state.ScrollTo,store:this.state.store});
 
     return E("div",{style:styles.topcontainer},
       E(CorpusNote,props2),

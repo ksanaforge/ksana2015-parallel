@@ -4,7 +4,7 @@ const PT=React.PropTypes;
 const {openCorpus}=require("ksana-corpus");
 const Viewers={
   default:require('./corpusview'),
-  defaultnote:require("./noteview")
+  defaultnote:require("./notes/noteview")
 }
 const Menus={
 	defaultcorpusmenu:require("./corpusmenu"),
@@ -20,7 +20,10 @@ const CorpusNote = React.createClass({
        this.setState({cor,cor});
     });
   },
-  render:function(){
+  save:function(id,text){
+    this.props.store.saveNote(id,text);
+  }
+  ,render:function(){
     if (!this.state.cor) {
       return E("div",{},"loading");
     }
@@ -35,7 +38,7 @@ const CorpusNote = React.createClass({
   					menu:leftMenu,address:this.props.address})),
   			E("div",{style:{flex:1}},
   				E(RightView,{side:1,corpus:this.props.corpus,cor:this.state.cor,
-  					menu:rightMenu}))
+  					menu:rightMenu,store:this.props.store,save:this.save}))
   		)
   	)
   }

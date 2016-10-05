@@ -32,15 +32,18 @@ const queueTask=function(func,opts,cb,context) {
 }
 
 const action=function(evt,opts,cb){
+	var found=false;
 	for (var i=0;i<listeners.length;i+=1) {
 		var listener=listeners[i];
 		if (evt===listener[1] ) {
 			if (listener[2]==undefined) {
 				console.error("action has no callback",evt,listener);
 			}
+			found=true;
 			queueTask( listener[2], opts,cb  , listener[0]);
 		}
 	}
+	if (!found) console.warn("no listener for ",evt);
 }
 
 const getter=function(name,opts,cb){ // sync getter
