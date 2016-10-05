@@ -1,3 +1,5 @@
+
+
 const React=require("react");
 const E=React.createElement;
 const PT=React.PropTypes;
@@ -163,8 +165,10 @@ const NoteView=React.createClass({
 	}
 	,render:function(){
 		if (!this.props.cor) return E("div",{},"loading");
+		const menuopts={noteid:this.state.id,
+			title:this.state.title,store:this.props.store};
 	  return	E("div",{},
-	  	E(this.props.menu),
+	  	E(this.props.menu,menuopts),
 	  	E(CodeMirror,{ref:"cm",
 	  	onCursorActivity:this.onCursorActivity,
 	  	onPaste:this.onPaste,

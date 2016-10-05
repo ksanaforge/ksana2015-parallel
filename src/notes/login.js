@@ -50,7 +50,7 @@ var LoginBox=React.createClass({
   ,renderUser:function() {
     return (
     	E("div",{style:{textAlign:"center"}},
-         E("span",{style:{fontSize:"60%"}}, this.state.user.displayName)
+         E("span",{style:{fontSize:"60%"}}, this.state.user.email)
         ,E("button",{onClick:this.signOut},"Sign out")
         ,E("img",{width:40,height:40,style:{borderRadius:"50%"},src:this.state.user.photoURL})
        )

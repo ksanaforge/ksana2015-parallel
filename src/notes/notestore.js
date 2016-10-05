@@ -1,11 +1,12 @@
 const M=require("../model");
 //	const database=this.API.firebase.database();
-
+const EMPTYNOTE="An empty Note"
 const notesFromSnapshot=function(snapshot){
 	var obj=snapshot.val();
 	var notes=[];
-	for (var i in obj) {
-		notes.push(obj[i]);
+	for (var key in obj) {
+		const o=Object.assign({},obj[key],{key})
+		notes.push(o);
 	}
 	return notes;
 }
@@ -13,19 +14,19 @@ const notesFromSnapshot=function(snapshot){
 const listenUserNotes=function(cb){
 	const uid=M.getter("user").uid;
 	const database=this.API.firebase.database();
-	this.API.usernotes().child(uid).on('value',function(snapshot){
+	this.API.usernotes(uid).on('value',function(snapshot){
 		const notes=notesFromSnapshot(snapshot);
 		cb&&cb(notes);
 	})
 }
 const unlistenUserNotes=function(){
 	const uid=M.getter("user").uid;
-	this.API.usernotes().child(uid).off();
+	this.API.usernotes(uid).off();
 }
 const getUserNotes=function(cb){
 	const uid=M.getter("user").uid;
 
-	this.API.usernotes().child(uid).once('value').then(function(snapshot){
+	this.API.usernotes(uid).once('value').then(function(snapshot){
 		const notes=notesFromSnapshot(snapshot);
 		cb&&cb(notes);
 	});
@@ -35,29 +36,37 @@ const getPublicNotes=function(store){
 	return [];
 }
 const openNote=function(key,cb){
-	var key=this.API.notes().child(key).once('value').then(function(snapshot){
+	this.API.notes().child(key).once('value').then(function(snapshot){
 		cb&&cb(snapshot.val());
 	});
 }
-const newNote=function(){
+const newNote=function(cb){
 	const user=M.getter("user");
-	var content="empty"+(new Date()).toString();
+	var content=EMPTYNOTE;
 	var uid=user.uid,title=(new Date()).toISOString();
 
-	var key=this.API.notes().push().key;
+	var id=this.API.notes().push().key;
 
-	var notedata={key,uid:user.uid,title};
+	var notedata={uid:user.uid,title};
 		
-	this.API.notes().child(key).set({content});
-	this.API.usernotes().child(uid).push(notedata);
+	this.API.notes().child(id).set({content});
+	this.API.usernotes(uid).child(id).set(notedata);
 
-	return {key, uid, content,title};
+	cb&&cb({id, uid, content,title});
 }
-const saveNote=function(key,text){
-	this.API.notes().child(key).set({content:text});
+const saveNote=function(noteid,text){
+	this.API.notes().child(noteid).set({content:text});
+}
+const setTitle=function(uid,noteid,title){
+	this.API.usernotes(uid).child(noteid+'/'+'title').set(title);
+}
+const deleteNote=function(uid,noteid){
+	this.API.notes().child(noteid).remove();
+	this.API.usernotes(uid).child(noteid).remove();
 }
 const createStore=function(API){
 	return { newNote,openNote,saveNote,getUserNotes,getPublicNotes
-		,listenUserNotes,unlistenUserNotes,API}
+		,listenUserNotes,unlistenUserNotes,API, setTitle,deleteNote}
 }
+
 module.exports=createStore;

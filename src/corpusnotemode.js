@@ -3,7 +3,7 @@ const E=React.createElement;
 const PT=React.PropTypes;
 const ControlPanel=require("./controlpanel");
 const CorpusNote=require("./corpusnote");
-var {action,listen,unlistenAll,getter,registerGetter,unregisterGetter}=require("./model");
+var {action,listen,unlistenAll,getter,registerGetter,unregisterGetter,hasGetter}=require("./model");
 const Store=require("./notes/notestore");
 
 
@@ -18,12 +18,13 @@ const CorpusNoteMode=React.createClass({
     listen: PT.func
     ,unlistenAll:PT.func
     ,action: PT.func
+    ,hasGetter:PT.func
     ,getter: PT.func
     ,registerGetter:PT.func
     ,unregisterGetter:PT.func
   }
   ,getChildContext:function(){
-    return {action,listen,unlistenAll,getter,registerGetter,unregisterGetter};
+    return {action,listen,unlistenAll,getter,hasGetter,registerGetter,unregisterGetter};
   }  
   ,render: function() {
     var props1=Object.assign({},this.props,

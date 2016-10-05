@@ -7,6 +7,7 @@ const styles={
 const NoteList=React.createClass({
 	contextTypes:{
 		getter:PT.func,
+		hasGetter:PT.func,
 		action:PT.func,
 		listen:PT.func,
 		unlistenAll:PT.func
@@ -33,20 +34,33 @@ const NoteList=React.createClass({
 			this.setState({usernotes});
 		}.bind(this));
 	}
-	,opennote:function(e){
+	,newNote:function(){
+		this.props.store.newNote(function(r){
+			const id=r.id,text=r.content,title=r.title;
+			this.context.action("noteloaded",{id,text,title});
+		}.bind(this));
+	}	
+	,openNote:function(e){
 		const id=e.target.dataset.id;
+		const title=e.target.innerText;
 		id&&this.props.store.openNote(id,function(data){
-			this.context.action("noteloaded",{id,text:data.content});
+			this.context.action("noteloaded",{id,text:data.content,title});
 		}.bind(this));
 	}
 	,renderUserNote:function(item,key){
 		return E("div",{key},
 			E("span",{style:styles.notetitle,
-				onClick:this.opennote,"data-id":item.key},item.title)
+				onClick:this.openNote,"data-id":item.key},item.title)
 		);
+	}
+	,renderButtons:function(){
+		if (!this.context.hasGetter("user"))return;
+		var user=this.context.getter("user");
+		return user?E("button",{onClick:this.newNote},"Create"):null;
 	}
 	,render:function(){
 		return E("div",{},
+				this.renderButtons(),
 				this.state.usernotes.map(this.renderUserNote)
 		);
 	}
