@@ -1,10 +1,12 @@
-var React=require("react");
-var E=React.createElement;
-var PT=React.PropTypes;
-
-var NoteMenu=React.createClass({
+const React=require("react");
+const E=React.createElement;
+const PT=React.PropTypes;
+const NoteMenu=React.createClass({
 	getInitialState:function(){
 		return {address:this.props.address,title:this.props.title};
+	}
+	,propTypes:{
+		deleteNote:PT.func.isRequired
 	}
 	,contextTypes:{
 		action:PT.func.isRequired,
@@ -23,23 +25,24 @@ var NoteMenu=React.createClass({
 	}
 	,onTitleKeyPress:function(e){
 		if (e.key!=="Enter")return;
-		const uid=this.context.getter("user").uid;
-
+		const uid=this.context.getter("user");
+		if (!uid) return;
 		if (this.state.title=="") {
-			this.props.store.deleteNote(uid,this.props.noteid);
-			this.context.action("noteloaded",{id:"",text:"empty"});
+			this.props.deleteNote(this.props.noteid);
 		} else {
-			this.props.store.setTitle(uid,this.props.noteid,this.state.title);			
+			this.props.store.setTitle(user.uid,this.props.noteid,this.state.title);			
 		}
 	}
 	,onTitleChange:function(e){
+		const uid=this.context.getter("user");
+		if (!uid) return;
 		this.setState({title:e.target.value});
 	}
 	,renderControls:function(){
 		if (this.props.noteid){
 			return E("input",{style:styles.title,onChange:this.onTitleChange,
 				onKeyPress:this.onTitleKeyPress,value:this.state.title
-				,placeholder:"Enter to Delete this document"})
+				,placeholder:"Enter to Delete this Note"})
 		}
 	}
 	,render:function(){

@@ -18,12 +18,14 @@ const NoteList=React.createClass({
 	,componentDidMount:function(){
 		this.context.listen("loggedin",this.loggedin,this);
 		this.context.listen("logout",this.logout,this);
+		this.context.listen("opennote",this.openNote,this);
 	}
 	,componentWillUnmount:function(){
 		this.context.unlistenAll(this);
 	}
-	,logout:function(){
-		this.props.store.unlistenUserNotes();
+	,logout:function(uid){
+		this.props.store.unlistenUserNotes(uid);
+		this.setState({usernotes:[]});
 	}
 	,loggedin:function(){
 		this.props.store.getUserNotes(function(usernotes){
@@ -36,21 +38,27 @@ const NoteList=React.createClass({
 	}
 	,newNote:function(){
 		this.props.store.newNote(function(r){
-			const id=r.id,text=r.content,title=r.title;
+			const id=r.id,text=r.text,title=r.title;
 			this.context.action("noteloaded",{id,text,title});
 		}.bind(this));
 	}	
-	,openNote:function(e){
-		const id=e.target.dataset.id;
-		const title=e.target.innerText;
-		id&&this.props.store.openNote(id,function(data){
-			this.context.action("noteloaded",{id,text:data.content,title});
+	,openNote:function(opts){
+		opts=opts||{};
+		if (!opts.id)return;
+		this.props.store.openNote(opts.id,function(data){
+			this.context.action("noteloaded",
+				{id:opts.id,text:data.text,title:data.title,scrollTo:opts.scrollTo});
 		}.bind(this));
 	}
+	,openNoteClick:function(e){
+		const id=e.target.dataset.id;
+		id&&this.openNote({id});
+	}
+
 	,renderUserNote:function(item,key){
 		return E("div",{key},
 			E("span",{style:styles.notetitle,
-				onClick:this.openNote,"data-id":item.key},item.title)
+				onClick:this.openNoteClick,"data-id":item.key},item.title)
 		);
 	}
 	,renderButtons:function(){

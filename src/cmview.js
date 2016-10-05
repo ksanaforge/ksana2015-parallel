@@ -35,10 +35,10 @@ const CMView=React.createClass({
 	,componentWillUnmount:function(){
 		this.context.unlistenAll();
 	}
-	,jumpToRange:function(start,end){
+	,jumpToRange:function(from,to){
 		var cm=this.refs.cm.getCodeMirror();
-		cm.markText(start,end,{className:"gotomarker",clearOnEnter:true});
-		cm.scrollIntoView(end,200);
+		cm.markText(from,to,{className:"gotomarker",clearOnEnter:true});
+		cm.scrollIntoView(to,200);
 	}
 	,scrollToText:function(t){
 		var cm=this.refs.cm.getCodeMirror();
@@ -51,6 +51,13 @@ const CMView=React.createClass({
 			if (pos.line) pos.line--;
 			cm.scrollIntoView(pos);
 		}
+	}
+	,getAllMarks:function(){
+		return this.refs.cm.getCodeMirror().getAllMarks();
+	}
+	,markText:function(){
+		var cm=this.refs.cm.getCodeMirror();
+		return cm.doc.markText.apply(cm.doc,arguments);
 	}
 	,getLine:function(i){
 		var cm=this.refs.cm.getCodeMirror();

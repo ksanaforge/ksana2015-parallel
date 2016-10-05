@@ -28,10 +28,11 @@ var LoginBox=React.createClass({
     if (this.state.user) return this.state.user;
   }
   ,signOut:function() {
+    const uid=this.state.user.uid;
     this.state.store.logout(function(){
     	this.setState({user:null,token:null});
     	localStorage.setItem(lskey,"");
-      this.context.action("logout");
+      this.context.action("logout",uid);
     }.bind(this));
   }
   ,googleSignIn:function() {

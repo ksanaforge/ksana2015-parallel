@@ -1,6 +1,6 @@
 const M=require("../model");
 //	const database=this.API.firebase.database();
-const EMPTYNOTE="An empty Note"
+const emptynote=require("./emptynote");
 const notesFromSnapshot=function(snapshot){
 	var obj=snapshot.val();
 	var notes=[];
@@ -19,8 +19,7 @@ const listenUserNotes=function(cb){
 		cb&&cb(notes);
 	})
 }
-const unlistenUserNotes=function(){
-	const uid=M.getter("user").uid;
+const unlistenUserNotes=function(uid){
 	this.API.usernotes(uid).off();
 }
 const getUserNotes=function(cb){
@@ -42,30 +41,50 @@ const openNote=function(key,cb){
 }
 const newNote=function(cb){
 	const user=M.getter("user");
-	var content=EMPTYNOTE;
 	var uid=user.uid,title=(new Date()).toISOString();
 
 	var id=this.API.notes().push().key;
+	var text=emptynote(title);
 
-	var notedata={uid:user.uid,title};
-		
-	this.API.notes().child(id).set({content});
-	this.API.usernotes(uid).child(id).set(notedata);
+	var notedata={uid,title,text};
 
-	cb&&cb({id, uid, content,title});
+	this.API.notes().child(id).set(notedata);
+	this.API.usernotes(uid).child(id).set({title});
+
+	cb&&cb({id, uid, text,title});
 }
-const saveNote=function(noteid,text){
-	this.API.notes().child(noteid).set({content:text});
+const packKpos=function(kpos){
+	return kpos.map(function(k){return k.toString(16)});
+}
+const saveNote=function(noteid,text,kposs){
+	for (var file in kposs){
+		this.API.linkedBy(file).child(noteid).set(kposs[file]);
+	}
+	this.API.notes().child(noteid+"/text").set(text);
 }
 const setTitle=function(uid,noteid,title){
 	this.API.usernotes(uid).child(noteid+'/'+'title').set(title);
+	this.API.notes().child(noteid+'/'+'title').set(title);
 }
-const deleteNote=function(uid,noteid){
+const deleteNote=function(userid,noteid,kposs){
 	this.API.notes().child(noteid).remove();
-	this.API.usernotes(uid).child(noteid).remove();
+	this.API.usernotes(userid).child(noteid).remove();
+
+	for (var file in kposs){
+		this.API.linkedBy(file).child(noteid).remove();
+	}
+}
+const onLinkedBy=function(filename,cb,context){
+	this.API.linkedBy(filename).on('value',function(snapshot){
+		cb&&cb.call(context,snapshot.val());
+	})	
+}
+const offLinkedBy=function(filename){
+	this.API.linkedBy(filename).off('value');
 }
 const createStore=function(API){
 	return { newNote,openNote,saveNote,getUserNotes,getPublicNotes
+		,onLinkedBy,offLinkedBy
 		,listenUserNotes,unlistenUserNotes,API, setTitle,deleteNote}
 }
 

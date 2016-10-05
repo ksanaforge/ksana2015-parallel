@@ -1,14 +1,12 @@
-
-
 const React=require("react");
 const E=React.createElement;
 const PT=React.PropTypes;
 const CodeMirror=require("ksana-codemirror").Component;
+const emptynote=require("./emptynote");
 const MAXLENGTH=65536;
 const NoteView=React.createClass({
 	getInitialState:function(){
-		const text=localStorage.getItem(this.props.corpus+"_note")
-		||"abc@2p178a0202-06;xyz@2p179c2902-09;aaaa";
+		const text=emptynote();
 		return {text,renderedText:" "};
 	}
 	,propType:{
@@ -17,7 +15,9 @@ const NoteView=React.createClass({
 	,contextTypes:{
 		listen:PT.func,
 		unlistenAll:PT.func,
-		action:PT.func
+		action:PT.func,
+		getter:PT.func
+
 	}
 	,componentDidMount:function(){
 		this.context.listen("noteloaded",this.noteloaded,this);
@@ -26,10 +26,23 @@ const NoteView=React.createClass({
 	,componentWillUnmount:function(){
 		this.context.unlistenAll(this);
 	}
-	,noteloaded:function(obj){
-		var cm=this.refs.cm.getCodeMirror();
-		this.setState(obj,function(){
-			this.renderText(obj.text);
+	,scrollToAddress:function(address){
+		const cm=this.refs.cm.getCodeMirror();
+		var marks=cm.getAllMarks();
+		marks=marks.filter(function(m){return m.address==address});
+		if (!marks.length)return;
+		for (var i=0;i<marks.length;i++) {
+			const r=marks[i].find();
+			cm.markText(r.from,r.to,{className:"gotomarker",clearOnEnter:true});	
+		}
+		cm.scrollIntoView(marks[marks.length-1].to,200);
+	}
+	,noteloaded:function(opts){
+		const cm=this.refs.cm.getCodeMirror();
+		cm.setOption('readOnly',(opts.id && !this.context.getter('user')));
+		this.setState(opts,function(){
+			this.renderText(opts.text);
+			if (opts.scrollTo) this.scrollToAddress(opts.scrollTo);
 		}.bind(this))
 	}
 	,renderText:function(str){
@@ -44,7 +57,7 @@ const NoteView=React.createClass({
 			var i=0,replacedLength=0,transclusionlength=0;
 			var renderedText=str.replace(cor.addressRegex,function(m,m1,idx){
 		
-				var transclusion=texts[i].join("\n");
+				var transclusion=texts[i].join("");
 				const markpos=idx+transclusionlength-replacedLength;
 				i++;
 
@@ -165,7 +178,7 @@ const NoteView=React.createClass({
 	}
 	,render:function(){
 		if (!this.props.cor) return E("div",{},"loading");
-		const menuopts={noteid:this.state.id,
+		const menuopts={noteid:this.state.id,deleteNote:this.props.deleteNote,
 			title:this.state.title,store:this.props.store};
 	  return	E("div",{},
 	  	E(this.props.menu,menuopts),
