@@ -59,6 +59,9 @@ const CMView=React.createClass({
 		var cm=this.refs.cm.getCodeMirror();
 		return cm.doc.markText.apply(cm.doc,arguments);
 	}
+	,getCodeMirror:function(){
+		return this.refs.cm.getCodeMirror();
+	}
 	,getLine:function(i){
 		var cm=this.refs.cm.getCodeMirror();
 		return cm.doc.getLine(i);

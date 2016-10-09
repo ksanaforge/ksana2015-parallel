@@ -24,7 +24,6 @@ const unlistenUserNotes=function(uid){
 }
 const getUserNotes=function(cb){
 	const uid=M.getter("user").uid;
-
 	this.API.usernotes(uid).once('value').then(function(snapshot){
 		const notes=notesFromSnapshot(snapshot);
 		cb&&cb(notes);

@@ -16,7 +16,7 @@ var LoginBox=React.createClass({
   }
   ,componentDidMount:function(){
   	if (localStorage.getItem(lskey)){
-  		this.googleSignIn();
+  		//this.googleSignIn();
   	}
     this.context.registerGetter("user",this.getUser);
     this.context.registerGetter("")
@@ -52,7 +52,8 @@ var LoginBox=React.createClass({
     return (
     	E("div",{style:{textAlign:"center"}},
          E("span",{style:{fontSize:"60%"}}, this.state.user.email)
-        ,E("button",{onClick:this.signOut},"Sign out")
+        ,E("button",{className:"mui-btn mui-btn--danger" ,
+              onClick:this.signOut},"Sign out")
         ,E("img",{width:40,height:40,style:{borderRadius:"50%"},src:this.state.user.photoURL})
        )
     	);

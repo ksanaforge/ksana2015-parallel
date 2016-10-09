@@ -1,3 +1,7 @@
+/*
+use Promise.all to fetch note title
+
+*/
 var React=require("react");
 var E=React.createElement;
 var PT=React.PropTypes;

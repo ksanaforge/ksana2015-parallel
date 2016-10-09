@@ -64,7 +64,8 @@ const NoteList=React.createClass({
 	,renderButtons:function(){
 		if (!this.context.hasGetter("user"))return;
 		var user=this.context.getter("user");
-		return user?E("button",{onClick:this.newNote},"Create"):null;
+		return user?E("button",{onClick:this.newNote
+			,className:"mui-btn mui-btn--primary"},"New Note"):null;
 	}
 	,render:function(){
 		return E("div",{},

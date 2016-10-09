@@ -15,7 +15,8 @@ const CorpusView=React.createClass({
 		store:PT.object
 	}
 	,getInitialState:function(){
-		return {startkpos:0,popupX:0,popupY:0,links:[]};
+		return {startkpos:0,popupX:0,popupY:0,
+			links:[],layout:'',linebreaks:[],pagebreaks:[]};
 	}
 	,goto:function(opts){
 		opts=opts||{};
@@ -23,38 +24,69 @@ const CorpusView=React.createClass({
 		if (!cor)return;
 		if (opts.corpus!==cor.meta.name) return;
 		const range=cor.parseRange(opts.address);
-		const r=cor.fileOf(range.start);
-		if (!r)return;
+		const file=cor.fileOf(range.start);
+		if (!file)return;
 		if (this.state.filename&& this.props.store) {
 			this.props.store.offLinkedBy(this.state.filename);
 		}
-		cor.getFile(r.at,function(data){
-			if (!data)return;
-			this.context.action("loaded",
-				{filename:r.filename,data:data.join("\n")
-				,side:this.props.side,address:opts.address});
-
-			this.setState({startkpos:r.start,filename:r.filename});
+		cor.getFile(file.at,function(text){
+			if (!text)return;
+			this.layout(file,text,opts.address);
 		}.bind(this));
 	}
 	,onLoaded:function(res){
 		this.props.store&&this.props.store.onLinkedBy(res.filename,linkedBy,this);
 		res.address&&this.scrollToAddress(res.address);
 	}
+	,getRawLine:function(line){
+		const firstline=this.props.cor.bookLineOf(this.state.startkpos);
+		return this.state.text[line-firstline];
+	}
 	,scrollToAddress:function(address){
-		const getLine=this.refs.cm.getLine;
-		const r=this.props.cor.lineCharOffset(this.state.startkpos,address,getLine);
+		const r=this.props.cor.toLogicalRange(this.state.linebreaks,address,this.getRawLine);
 		this.refs.cm.jumpToRange(r.start,r.end);
 	}
 	,highlightAddress:function(address){
 		this.highlight&&this.highlight.clear();
 		if (!address) return;
-		const getLine=this.refs.cm.getLine;
-		const r=this.props.cor.lineCharOffset(this.state.startkpos,address,getLine);
+		const r=this.props.cor.toLogicalRange(this.state.linebreaks,address,this.getRawLine);
 		this.highlight=this.refs.cm.markText(r.start,r.end,{className:"highlight",clearOnEnter:true});
+	}
+	,toggleLayout:function(opts){
+		if (opts.corpus!==this.props.corpus||opts.side!==this.props.side) return;
+		const file=this.props.cor.fileOf(this.state.startkpos);
+		this.layout(file,this.state.text);
+	}
+	,layout:function(file,text,address){
+		const cor=this.props.cor;
+		const side=this.props.side;
+		const layouttag="p";
+
+		if (typeof address=="undefined"){
+			//scroll to the selection after layout
+			address=this.kRangeFromCursor(this.refs.cm.getCodeMirror());
+		}
+		const book=cor.bookOf(address);
+
+		const changetext=function(layout){
+			this.setState({text,linebreaks:layout.linebreaks,startkpos:file.start,
+				pagebreaks:layout.pagebreaks,layout:this.state.layout?'':layouttag});
+			this.context.action("loaded",
+					{filename:file.filename,data:layout.lines.join("\n"),side,address});
+		}
+
+		if (this.state.layout=='') {
+			cor.getBookField(layouttag,book,function(book_p){
+				const p=cor.trimField(book_p,file.start,file.end);
+				changetext.call(this, cor.layoutText(text,file.start,p.pos) );
+			}.bind(this));
+		} else {
+			changetext.call(this, cor.layoutText(text,file.start) );
+		}
 	}
 	,componentDidMount:function(){
 		this.context.listen("goto",this.goto,this);
+		this.context.listen("toggleLayout",this.toggleLayout,this);
 		this.context.listen("highlightAddress",this.highlightAddress,this);
 		if (!this.props.cor || !this.props.address) return;
 		this.goto({address:this.props.address,corpus:this.props.cor.meta.name});
@@ -64,12 +96,10 @@ const CorpusView=React.createClass({
 		this.props.store.offLinkedBy(this.state.filename);
 	}
 	,kRangeFromSel:function(cm,from,to){
-		const cor=this.props.cor;
-		const textbeforestart=cm.doc.getLine(from.line).substr(0,from.ch);
-		const textbeforeend=cm.doc.getLine(to.line).substr(0,to.ch);
-		const startkpos=cor.advanceLineChar(this.state.startkpos,from.line,textbeforestart);
-		const endkpos=cor.advanceLineChar(this.state.startkpos,to.line,textbeforeend);
-		return cor.makeKRange(startkpos,endkpos);
+		const f=this.props.cor.fromLogicalPos.bind(this.props.cor);
+		const s=f(cm.doc.getLine(from.line),from.ch,this.state.linebreaks[from.line],this.getRawLine);
+		const e=f(cm.doc.getLine(to.line),to.ch,this.state.linebreaks[to.line],this.getRawLine);
+		return this.props.cor.makeKRange(s,e);
 	}
 	,kRangeFromCursor:function(cm){
 		const sels=cm.listSelections();
@@ -86,6 +116,12 @@ const CorpusView=React.createClass({
 		const krange=this.kRangeFromCursor(cm);
 		evt.target.value="@"+this.props.cor.stringify(krange)+';';
 		evt.target.select();//reselect the hidden textarea
+	}
+	,showCursorKPos:function(cm){
+		const cor=this.props.cor;
+		const cursor=cm.getCursor();
+		const krange=this.kRangeFromSel(cm,cursor,cursor);
+		console.log(cor.stringify(krange));
 	}
 	,showLinkPopup:function(cm){
 		const cursor=cm.getCursor();
@@ -108,6 +144,7 @@ const CorpusView=React.createClass({
 	,onCursorActivity:function(cm){
 		clearTimeout(this.cursortimer);
 		this.cursortimer=setTimeout(function(){
+			this.showCursorKPos(cm);
 			this.showLinkPopup(cm);
 		}.bind(this),300);
 	}

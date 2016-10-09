@@ -18,11 +18,16 @@ var CorpusMenu=React.createClass({
 	,onKeyPress:function(e){
 		if (e.key==="Enter")this.goto();
 	}
+	,toggleLayout:function(){
+		this.context.action("toggleLayout",{corpus:this.props.corpus,side:this.props.side});
+	}
 	,render:function(){
 		return	E("div",{style:styles.container},
 				E("div",{style:styles.viewcontrols},
-					E("input",{value:this.state.address,onChange:this.onChange
-						,onKeyPress:this.onKeyPress})
+					E("input",{size:11,value:this.state.address,onChange:this.onChange
+						,onKeyPress:this.onKeyPress}),
+					E("br"),
+					E("button",{onClick:this.toggleLayout},"Layout")
 				)
 		)
 	}
