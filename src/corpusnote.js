@@ -24,10 +24,6 @@ const CorpusNote = React.createClass({
     openCorpus(this.props.corpus,(err,cor)=>{
        this.setState({cor,cor});
     });
-  },
-  save:function(id,text){
-    const kposs=this.state.cor.extractKPos(text);
-    this.props.store.saveNote(id,text,kposs);
   }
   ,deleteNote:function(noteid){
     const uid=this.context.getter("user").uid;
@@ -52,7 +48,7 @@ const CorpusNote = React.createClass({
   			E("div",{style:{flex:1}},
   				E(RightView,{side:1,corpus:this.props.corpus,cor:this.state.cor,
   					menu:rightMenu,store:this.props.store,ref:"note",
-            deleteNote:this.deleteNote,save:this.save}))
+            deleteNote:this.deleteNote}))
   		)
   	)
   }

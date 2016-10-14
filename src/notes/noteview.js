@@ -21,6 +21,7 @@ const NoteView=React.createClass({
 	}
 	,componentDidMount:function(){
 		this.context.listen("noteloaded",this.noteloaded,this);
+		this.oldkposs=this.props.cor.extractKPos(this.state.text);
 		this.renderText(this.state.text);
 	}
 	,componentWillUnmount:function(){
@@ -166,14 +167,14 @@ const NoteView=React.createClass({
 		}
 		return text;
 	}
-
+  ,save:function(id,text){
+    const kposs=this.props.cor.extractKPos(text);
+    this.oldkposs=this.props.store.saveNote(id,text,kposs,this.oldkposs);
+  }
 	,onChange:function(e){
 		clearTimeout(this.changetimer);
 		this.changetimer=setTimeout(function(){
-			if (this.state.id) {
-				const text=this.getSaveText();
-				this.props.save&&this.props.save(this.state.id,text);
-			}
+			this.state.id&&this.save(this.state.id,this.getSaveText());
 		}.bind(this),2000);
 	}
 	,render:function(){

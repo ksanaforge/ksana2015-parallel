@@ -55,11 +55,18 @@ const newNote=function(cb){
 const packKpos=function(kpos){
 	return kpos.map(function(k){return k.toString(16)});
 }
-const saveNote=function(noteid,text,kposs){
-	for (var file in kposs){
-		this.API.linkedBy(file).child(noteid).set(kposs[file]);
+const saveNote=function(noteid,text,kposs,oldkposs){
+	var article;
+	for (article in kposs){
+		delete oldkposs[article];
+		this.API.linkedBy(article).child(noteid).set(kposs[article]);
+	}
+
+	for (article in oldkposs) {
+		this.API.linkedBy(article).child(noteid).set(null);
 	}
 	this.API.notes().child(noteid+"/text").set(text);
+	return kposs;
 }
 const setTitle=function(uid,noteid,title){
 	this.API.usernotes(uid).child(noteid+'/'+'title').set(title);
@@ -69,17 +76,17 @@ const deleteNote=function(userid,noteid,kposs){
 	this.API.notes().child(noteid).remove();
 	this.API.usernotes(userid).child(noteid).remove();
 
-	for (var file in kposs){
-		this.API.linkedBy(file).child(noteid).remove();
+	for (var article in kposs){
+		this.API.linkedBy(article).child(noteid).remove();
 	}
 }
-const onLinkedBy=function(filename,cb,context){
-	this.API.linkedBy(filename).on('value',function(snapshot){
+const onLinkedBy=function(articlename,cb,context){
+	this.API.linkedBy(articlename).on('value',function(snapshot){
 		cb&&cb.call(context,snapshot.val());
 	})	
 }
-const offLinkedBy=function(filename){
-	this.API.linkedBy(filename).off('value');
+const offLinkedBy=function(articlename){
+	this.API.linkedBy(articlename).off('value');
 }
 const createStore=function(API){
 	return { newNote,openNote,saveNote,getUserNotes,getPublicNotes

@@ -16,7 +16,7 @@ const CorpusView=React.createClass({
 	}
 	,getInitialState:function(){
 		return {startkpos:0,popupX:0,popupY:0,
-			links:[],layout:'',linebreaks:[],pagebreaks:[]};
+			links:[],layout:'p',linebreaks:[],pagebreaks:[]};
 	}
 	,goto:function(opts){
 		opts=opts||{};
@@ -24,18 +24,18 @@ const CorpusView=React.createClass({
 		if (!cor)return;
 		if (opts.corpus!==cor.meta.name) return;
 		const range=cor.parseRange(opts.address);
-		const file=cor.fileOf(range.start);
-		if (!file)return;
-		if (this.state.filename&& this.props.store) {
-			this.props.store.offLinkedBy(this.state.filename);
+		const article=cor.articleOf(range.start);
+		if (!article)return;
+		if (this.state.articlename&& this.props.store) {
+			this.props.store.offLinkedBy(this.state.articlename);
 		}
-		cor.getFile(file.at,function(text){
+		cor.getArticle(article.at,function(text){
 			if (!text)return;
-			this.layout(file,text,opts.address);
+			this.layout(article,text,opts.address);
 		}.bind(this));
 	}
 	,onLoaded:function(res){
-		this.props.store&&this.props.store.onLinkedBy(res.filename,linkedBy,this);
+		this.props.store&&this.props.store.onLinkedBy(res.articlename,linkedBy,this);
 		res.address&&this.scrollToAddress(res.address);
 	}
 	,getRawLine:function(line){
@@ -54,8 +54,8 @@ const CorpusView=React.createClass({
 	}
 	,toggleLayout:function(opts){
 		if (opts.corpus!==this.props.corpus||opts.side!==this.props.side) return;
-		const file=this.props.cor.fileOf(this.state.startkpos);
-		this.layout(file,this.state.text);
+		const article=this.props.cor.articleOf(this.state.startkpos);
+		this.layout(article,this.state.text);
 	}
 	,layout:function(file,text,address){
 		const cor=this.props.cor;
@@ -72,7 +72,7 @@ const CorpusView=React.createClass({
 			this.setState({text,linebreaks:layout.linebreaks,startkpos:file.start,
 				pagebreaks:layout.pagebreaks,layout:this.state.layout?'':layouttag});
 			this.context.action("loaded",
-					{filename:file.filename,data:layout.lines.join("\n"),side,address});
+					{articlename:file.articlename,data:layout.lines.join("\n"),side,address});
 		}
 
 		if (this.state.layout=='') {
@@ -93,7 +93,7 @@ const CorpusView=React.createClass({
 	}
 	,componentWillUnmount:function(){
 		this.context.unlistenAll();
-		this.props.store.offLinkedBy(this.state.filename);
+		this.props.store.offLinkedBy(this.state.articlename);
 	}
 	,kRangeFromSel:function(cm,from,to){
 		const f=this.props.cor.fromLogicalPos.bind(this.props.cor);
