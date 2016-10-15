@@ -2,9 +2,9 @@ const React=require("react");
 const E=React.createElement;
 const PT=React.PropTypes;
 const ControlPanel=require("./controlpanel");
-const CorpusMapping=require("./corpusmapping");
-var {action,listen,unlistenAll,getter,registerGetter,unregisterGetter}=require("./model");
-const CorpusMappingMode=React.createClass({
+const CorpusBinding=require("./corpusbinding");
+var {action,listen,unlistenAll,getter,hasGetter,registerGetter,unregisterGetter}=require("./model");
+const CorpusBindingMode=React.createClass({
   getInitialState:function() {
     return {};
   }
@@ -15,11 +15,12 @@ const CorpusMappingMode=React.createClass({
     ,unlistenAll:PT.func
     ,action: PT.func
     ,getter: PT.func
+    ,hasGetter: PT.func
     ,registerGetter:PT.func
     ,unregisterGetter:PT.func
   }
   ,getChildContext:function(){
-    return {action,listen,unlistenAll,getter,registerGetter,unregisterGetter};
+    return {action,listen,unlistenAll,hasGetter,getter,registerGetter,unregisterGetter};
   }  
   ,render: function() {
     var props1=Object.assign({},this.props);
@@ -30,7 +31,7 @@ const CorpusMappingMode=React.createClass({
     props2.scrollTo=this.state.scrollTo;
 
     return E("div",{style:styles.topcontainer},
-      E(CorpusMapping,props2),
+      E(CorpusBinding,props2),
       E(ControlPanel,props1)
     )
   }
@@ -41,4 +42,4 @@ const styles={
   height:"100%",overflowY:"scroll",overflowX:"hidden"},
   body:{flex:4},
 }
-module.exports=CorpusMappingMode;
+module.exports=CorpusBindingMode;

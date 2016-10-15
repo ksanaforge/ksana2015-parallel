@@ -57,11 +57,9 @@ const NoteView=React.createClass({
 			var transclusions=[];
 			var i=0,replacedLength=0,transclusionlength=0;
 			var renderedText=str.replace(cor.addressRegex,function(m,m1,idx){
-		
 				var transclusion=texts[i].join("");
 				const markpos=idx+transclusionlength-replacedLength;
 				i++;
-
 				transclusions.push([markpos,transclusion.length,m1]);
 				transclusionlength+=transclusion.length;
 				replacedLength+=m.length;

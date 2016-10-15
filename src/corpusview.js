@@ -39,8 +39,7 @@ const CorpusView=React.createClass({
 		res.address&&this.scrollToAddress(res.address);
 	}
 	,getRawLine:function(line){
-		const firstline=this.props.cor.bookLineOf(this.state.startkpos);
-		return this.state.text[line-firstline];
+		return this.state.text[line];
 	}
 	,scrollToAddress:function(address){
 		const r=this.props.cor.toLogicalRange(this.state.linebreaks,address,this.getRawLine);

@@ -1,8 +1,7 @@
 const kPosToLineCh=function(kposs){
-	const getLine=this.refs.cm.getLine;
 	var r,out=[];
 	for (var i=0;i<kposs.length;i++){
-			r=this.props.cor.toLogicalRange(this.state.linebreaks,kposs[i][0],getLine);
+			r=this.props.cor.toLogicalRange(this.state.linebreaks,kposs[i][0],this.getRawLine);
 			out.push([r.start,r.end,kposs[i][1]]);
 	}
 	return out;

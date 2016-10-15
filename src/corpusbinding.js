@@ -5,7 +5,9 @@ const {openCorpus}=require("ksana-corpus");
 const Viewers={
   default:require('./corpusview')
 }
-
+const Menus={
+  default:require("./corpusmenu")
+}
 const CorpusMapping = React.createClass({
   getInitialState:function() {
     return {};
@@ -23,12 +25,15 @@ const CorpusMapping = React.createClass({
     }
     var LeftView=Viewers[this.props.leftView||"default"];
     var RightView=Viewers[this.props.rightView||"default"];
+    var LeftMenu=Menus[this.props.leftMenu||"default"];
+    var RightMenu=Menus[this.props.RightMenu||"default"];
+
   	return E("div",{style:this.props.style},
   		E("div",{style:{display:'flex'}},
   			E("div",{style:{flex:1}},
-  				E(LeftView,{side:0,cor:this.state.leftCor,menu:this.props.leftMenu,scrollTo:this.props.scrollTo})),
+  				E(LeftView,{side:0,cor:this.state.leftCor,menu:LeftMenu,scrollTo:this.props.scrollTo})),
   			E("div",{style:{flex:1}},
-  				E(RightView,{side:1,cor:this.state.rightCor,menu:this.props.rightMenu,scrollTo:this.props.scrollTo}))
+  				E(RightView,{side:1,cor:this.state.rightCor,menu:RightMenu,scrollTo:this.props.scrollTo}))
   		)
   	)
   }
