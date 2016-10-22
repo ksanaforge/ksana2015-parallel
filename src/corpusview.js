@@ -19,6 +19,7 @@ const CorpusView=React.createClass({
 			links:[],layout:'p',linebreaks:[],pagebreaks:[]};
 	}
 	,goto:function(opts){
+		console.log("goto")
 		opts=opts||{};
 		const cor=this.props.cor;
 		if (!cor)return;
@@ -43,6 +44,7 @@ const CorpusView=React.createClass({
 	}
 	,scrollToAddress:function(address){
 		const r=this.props.cor.toLogicalRange(this.state.linebreaks,address,this.getRawLine);
+		if (!r || r.start.line<0)return;
 		this.refs.cm.jumpToRange(r.start,r.end);
 	}
 	,highlightAddress:function(address){

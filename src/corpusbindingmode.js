@@ -40,6 +40,6 @@ const styles={
   topcontainer:{display:"flex"},
   controls:{flex:1,background:'gray',fontSize:"75%",
   height:"100%",overflowY:"scroll",overflowX:"hidden"},
-  body:{flex:4},
+  body:{flex:6},
 }
 module.exports=CorpusBindingMode;
