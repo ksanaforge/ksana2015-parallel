@@ -19,7 +19,6 @@ const CorpusView=React.createClass({
 			links:[],layout:'p',linebreaks:[],pagebreaks:[]};
 	}
 	,goto:function(opts){
-		console.log("goto")
 		opts=opts||{};
 		const cor=this.props.cor;
 		if (!cor)return;
@@ -28,7 +27,8 @@ const CorpusView=React.createClass({
 		const article=cor.articleOf(range.start);
 		if (!article)return;
 		if (this.state.articlename&& this.props.store) {
-			this.props.store.offLinkedBy(this.state.articlename);
+			this.props.store.offLinkedBy&&this.props.store.offLinkedBy(this.state.articlename);
+			this.props.store.offLink&&this.props.store.offLink(opts.corpus,this.state.articlename);
 		}
 		cor.getArticle(article.at,function(text){
 			if (!text)return;
@@ -36,7 +36,11 @@ const CorpusView=React.createClass({
 		}.bind(this));
 	}
 	,onLoaded:function(res){
-		this.props.store&&this.props.store.onLinkedBy(res.articlename,linkedBy,this);
+		const store=this.props.store;
+		if (store){
+			store.onLinkedBy&&store.onLinkedBy(res.articlename,linkedBy,this);
+			store.onLink&&store.onLink(this.props.cor.meta.name,res.articlename,linkedBy,this);	
+		}		
 		res.address&&this.scrollToAddress(res.address);
 	}
 	,getRawLine:function(line){
@@ -58,7 +62,7 @@ const CorpusView=React.createClass({
 		const article=this.props.cor.articleOf(this.state.startkpos);
 		this.layout(article,this.state.text);
 	}
-	,layout:function(file,text,address){
+	,layout:function(article,text,address){
 		const cor=this.props.cor;
 		const side=this.props.side;
 		const layouttag="p";
@@ -70,19 +74,19 @@ const CorpusView=React.createClass({
 		const book=cor.bookOf(address);
 
 		const changetext=function(layout){
-			this.setState({text,linebreaks:layout.linebreaks,startkpos:file.start,
-				pagebreaks:layout.pagebreaks,layout:this.state.layout?'':layouttag});
+			this.setState({text,linebreaks:layout.linebreaks,startkpos:article.start,
+				pagebreaks:layout.pagebreaks,layout:this.state.layout?'':layouttag,article});
 			this.context.action("loaded",
-					{articlename:file.articlename,data:layout.lines.join("\n"),side,address});
+					{articlename:article.articlename,data:layout.lines.join("\n"),side,address});
 		}
 
 		if (this.state.layout=='') {
 			cor.getBookField(layouttag,book,function(book_p){
-				const p=cor.trimField(book_p,file.start,file.end);
-				changetext.call(this, cor.layoutText(text,file.start,p.pos) );
+				const p=cor.trimField(book_p,article.start,article.end);
+				changetext.call(this, cor.layoutText(text,article.start,p.pos) );
 			}.bind(this));
 		} else {
-			changetext.call(this, cor.layoutText(text,file.start) );
+			changetext.call(this, cor.layoutText(text,article.start) );
 		}
 	}
 	,componentDidMount:function(){
@@ -94,7 +98,10 @@ const CorpusView=React.createClass({
 	}
 	,componentWillUnmount:function(){
 		this.context.unlistenAll();
-		this.props.store.offLinkedBy(this.state.articlename);
+		if (this.props.store){
+			this.props.store.offLinkedBy&&this.props.store.offLinkedBy(this.state.articlename);
+			this.props.store.offLink&&this.props.store.offLink(this.props.cor.meta.name,this.state.articlename);
+		}
 	}
 	,kRangeFromSel:function(cm,from,to){
 		const f=this.props.cor.fromLogicalPos.bind(this.props.cor);
@@ -105,6 +112,7 @@ const CorpusView=React.createClass({
 	,kRangeFromCursor:function(cm){
 		const sels=cm.listSelections();
 		if (!sels.length) return null;
+
 		var from=sels[0].anchor,to=sels[0].head,temp;
 		if (from.line>to.line||(from.line==to.line && from.ch>to.ch)) {
 			temp=from;from=to;to=temp;
@@ -117,6 +125,19 @@ const CorpusView=React.createClass({
 		const krange=this.kRangeFromCursor(cm);
 		evt.target.value="@"+this.props.cor.stringify(krange)+';';
 		evt.target.select();//reselect the hidden textarea
+	}
+	,detectSelection:function(cm){
+		const sels=cm.listSelections();	
+		if (sels.length>0){
+			const sel=sels[0];
+			const start=cm.indexFromPos(sel.anchor);
+			const end=cm.indexFromPos(sel.head);
+			if (Math.abs(start-end)) {
+				const range=this.kRangeFromSel(cm,sel.head,sel.anchor);
+				this.context.action("selection",
+					{corpus:this.props.corpus,article:this.state.article,range});
+			}
+		}
 	}
 	,showCursorKPos:function(cm){
 		const cor=this.props.cor;
@@ -146,6 +167,7 @@ const CorpusView=React.createClass({
 		clearTimeout(this.cursortimer);
 		this.cursortimer=setTimeout(function(){
 			this.showCursorKPos(cm);
+			this.detectSelection(cm);
 			this.showLinkPopup(cm);
 		}.bind(this),300);
 	}

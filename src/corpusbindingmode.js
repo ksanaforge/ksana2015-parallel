@@ -3,10 +3,12 @@ const E=React.createElement;
 const PT=React.PropTypes;
 const ControlPanel=require("./controlpanel");
 const CorpusBinding=require("./corpusbinding");
+const Store=require("./bindings/store");
 var {action,listen,unlistenAll,getter,hasGetter,registerGetter,unregisterGetter}=require("./model");
 const CorpusBindingMode=React.createClass({
   getInitialState:function() {
-    return {};
+    const store=Store(this.props.remotedata);
+    return {store};
   }
   ,componentDidMount:function(){
   }
@@ -23,16 +25,16 @@ const CorpusBindingMode=React.createClass({
     return {action,listen,unlistenAll,hasGetter,getter,registerGetter,unregisterGetter};
   }  
   ,render: function() {
-    var props1=Object.assign({},this.props);
+    var props1=Object.assign({},this.props,{store:this.state.store});
     props1.style=styles.controls;
 
-    var props2=Object.assign({},this.props);
+    var props2=Object.assign({},this.props,{store:this.state.store});
     props2.style=styles.body;
     props2.scrollTo=this.state.scrollTo;
 
     return E("div",{style:styles.topcontainer},
       E(CorpusBinding,props2),
-      E(ControlPanel,props1)
+      E(this.props.control||ControlPanel,props1)
     )
   }
 })

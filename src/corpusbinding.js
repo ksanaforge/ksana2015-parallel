@@ -32,10 +32,10 @@ const CorpusMapping = React.createClass({
   		E("div",{style:{display:'flex'}},
   			E("div",{style:{flex:this.props.leftFlex||1}},
   				E(LeftView,{side:0,cor:this.state.leftCor,corpus:this.props.leftCorpus,
-            menu:LeftMenu,address:this.props.leftAddress})),
+            store:this.props.store,menu:LeftMenu,address:this.props.leftAddress})),
   			E("div",{style:{flex:this.props.rightFlex||1}},
   				E(RightView,{side:1,cor:this.state.rightCor,corpus:this.props.rightCorpus,
-            menu:RightMenu,address:this.props.rightAddress}))
+            store:this.props.store,menu:RightMenu,address:this.props.rightAddress}))
   		)
   	)
   }
