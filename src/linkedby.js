@@ -37,20 +37,21 @@ const removeLinkedBy=function(differences){
 	}
 }
 const linkedBy=function(data){
+	//  article/note id/range
 		//object key noteid, array of krange
-		const differences=diffLinkedBy(this.data,data);
-		removeLinkedBy.call(this,differences);
-		var kpos=[],i;
-		for (var noteid in data){
-			for (var i=0;i<data[noteid].length;i++){
-				if (differences[noteid]>-1) {
-					kpos.push([data[noteid][i],noteid]);	
-				}
+	const differences=diffLinkedBy(this.data,data);
+	removeLinkedBy.call(this,differences);
+	var kpos=[],i;
+	for (var noteid in data){
+		for (var i=0;i<data[noteid].length;i++){
+			if (differences[noteid]>-1) {
+				kpos.push([data[noteid][i],noteid]);	
 			}
 		}
-		const linkedby=kPosToLineCh.call(this,kpos);
-		this.setState({links:[]});
-		highlighLinkedBy.call(this,linkedby);
-		this.data=data;
+	}
+	const linkedby=kPosToLineCh.call(this,kpos);
+	this.setState({links:[]}); //links to be shown in link popup
+	highlighLinkedBy.call(this,linkedby);
+	this.data=data;
 }
 module.exports=linkedBy;

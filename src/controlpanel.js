@@ -3,7 +3,8 @@ var E=React.createElement;
 var PT=React.PropTypes;
 var Tabs={
 	kepan:require("./kepan"),
-	notetab:require("./notes/notetab")
+	note:require("./notes/notetab"),
+  binding:require("./bindings/bindingtab")
 }
 var ControlPanel = React.createClass({
   getInitialState:function() {

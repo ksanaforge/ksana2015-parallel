@@ -9,7 +9,7 @@ const Store=require("./notes/notestore");
 
 const CorpusNoteMode=React.createClass({
   getInitialState:function() {
-    const store=Store(this.props.datapath);
+    const store=Store(this.props.remotedata);
     return {store};
   }
   ,componentDidMount:function(){

@@ -3,7 +3,7 @@ const E=React.createElement;
 const PT=React.PropTypes;
 const ControlPanel=require("./controlpanel");
 const CorpusBinding=require("./corpusbinding");
-const Store=require("./bindings/store");
+const Store=require("./bindings/bindingstore");
 var {action,listen,unlistenAll,getter,hasGetter,registerGetter,unregisterGetter}=require("./model");
 const CorpusBindingMode=React.createClass({
   getInitialState:function() {
@@ -27,6 +27,7 @@ const CorpusBindingMode=React.createClass({
   ,render: function() {
     var props1=Object.assign({},this.props,{store:this.state.store});
     props1.style=styles.controls;
+    if (!props1.control) props1.control="binding";
 
     var props2=Object.assign({},this.props,{store:this.state.store});
     props2.style=styles.body;
@@ -34,7 +35,7 @@ const CorpusBindingMode=React.createClass({
 
     return E("div",{style:styles.topcontainer},
       E(CorpusBinding,props2),
-      E(this.props.control||ControlPanel,props1)
+      E(ControlPanel,props1)
     )
   }
 })

@@ -5,6 +5,7 @@ const CMView=require("./cmview");
 const defaultrule=require("./defaultrule");
 const LinkedByPopup=require("./linkedbypopup");
 const linkedBy=require("./linkedby");
+const toMarkup=require("./bindings/tomarkup");
 const CorpusView=React.createClass({
 	contextTypes:{
 		action:PT.func.isRequired,
@@ -39,7 +40,7 @@ const CorpusView=React.createClass({
 		const store=this.props.store;
 		if (store){
 			store.onLinkedBy&&store.onLinkedBy(res.articlename,linkedBy,this);
-			store.onLink&&store.onLink(this.props.cor.meta.name,res.articlename,linkedBy,this);	
+			store.onLink&&store.onLink(this.props.cor.meta.name,res.articlename,toMarkup,this);	
 		}		
 		res.address&&this.scrollToAddress(res.address);
 	}
@@ -135,7 +136,10 @@ const CorpusView=React.createClass({
 			if (Math.abs(start-end)) {
 				const range=this.kRangeFromSel(cm,sel.head,sel.anchor);
 				this.context.action("selection",
-					{corpus:this.props.corpus,article:this.state.article,range});
+					{corpus:this.props.corpus,article:this.state.article.articlename,range});
+			} else {
+				this.context.action("selection",
+					{corpus:this.props.corpus,article:this.state.article.articlename,range:0});
 			}
 		}
 	}

@@ -3,11 +3,17 @@ const E=React.createElement;
 const PT=React.PropTypes;
 const Firebase=require("./firebase");
 const loginbuttonstyle={verticalAlign: "middle",cursor:"pointer"};
-const lskey="taisho-corpus.user";
+
 var LoginBox=React.createClass({
   getInitialState: function () {
-  	const store=Firebase(this.props.datapath);
+  	const store=Firebase(this.props.remotedata);
     return {store,user:null,token:null};
+  }
+  ,getDefaultProps:function(){
+    return {lskey:"_user"};
+  }
+  ,propTypes:{
+    lskey:PT.string
   }
   ,contextTypes:{
     action:PT.func,
@@ -15,11 +21,10 @@ var LoginBox=React.createClass({
     unregisterGetter:PT.func
   }
   ,componentDidMount:function(){
-  	if (localStorage.getItem(lskey)){
-  		//this.googleSignIn();
+  	if (localStorage.getItem(this.props.lskey)){
+  		this.googleSignIn();
   	}
     this.context.registerGetter("user",this.getUser);
-    this.context.registerGetter("")
   }
   ,componentWillUnmount:function(){
     this.context.unregisterGetter("user");
@@ -31,7 +36,7 @@ var LoginBox=React.createClass({
     const uid=this.state.user.uid;
     this.state.store.logout(function(){
     	this.setState({user:null,token:null});
-    	localStorage.setItem(lskey,"");
+    	localStorage.setItem(this.props.lskey,"");
       this.context.action("logout",uid);
     }.bind(this));
   }
@@ -39,7 +44,7 @@ var LoginBox=React.createClass({
     this.state.store.login(function(user,token){
     	this.setState({user,token});
       this.context.action("loggedin",{user,token});
-    	localStorage.setItem(lskey,user.displayName);
+    	localStorage.setItem(this.props.lskey,user.displayName);
     }.bind(this));
   }
   ,renderSignin:function() {
