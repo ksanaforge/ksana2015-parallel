@@ -2,7 +2,7 @@ const React=require("react");
 const E=React.createElement;
 const PT=React.PropTypes;
 const CodeMirror=require("ksana-codemirror").Component;
-const emptynote=require("./emptynote");
+const emptynote=require("../notes/emptynote");
 const MAXLENGTH=65536;
 const NoteView=React.createClass({
 	getInitialState:function(){

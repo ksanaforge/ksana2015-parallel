@@ -2,14 +2,14 @@ const React=require("react");
 const E=React.createElement;
 const PT=React.PropTypes;
 const {openCorpus}=require("ksana-corpus");
-const emptynote=require("./notes/emptynote");
+const emptynote=require("../notes/emptynote");
 const Viewers={
-  default:require('./corpusview'),
-  defaultnote:require("./notes/noteview")
+  default:require('../cmview/corpusview'),
+  defaultnote:require("../cmview/noteview")
 }
 const Menus={
-	defaultcorpusmenu:require("./corpusmenu"),
-  defaultnotemenu:require("./notemenu")
+	defaultcorpusmenu:require("../corpusmenu"),
+  defaultnotemenu:require("../notemenu")
 }
 
 const CorpusNote = React.createClass({

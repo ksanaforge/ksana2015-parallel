@@ -1,10 +1,10 @@
 const React=require("react");
 const E=React.createElement;
 const PT=React.PropTypes;
-const ControlPanel=require("./controlpanel");
+const ControlPanel=require("../controlpanel");
 const TwoColumn=require("./twocolumn");
 
-const {action,listen,unlistenAll,getter,registerGetter,unregisterGetter}=require("./model");
+const {action,listen,unlistenAll,getter,registerGetter,unregisterGetter}=require("../model");
 
 const modemain = React.createClass({
   getInitialState:function() {

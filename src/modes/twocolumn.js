@@ -3,8 +3,8 @@ const E=React.createElement;
 const PT=React.PropTypes;
 
 const Viewers={
-  default:require('./localfileview'),
-  taisho:require("./taishoview")
+  default:require('../cmview/localfileview'),
+  taisho:require("../cmview/taishoview")
 }
 
 const TwoColumn = React.createClass({

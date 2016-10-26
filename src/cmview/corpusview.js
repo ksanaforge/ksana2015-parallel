@@ -2,10 +2,10 @@ const React=require("react");
 const E=React.createElement;
 const PT=React.PropTypes;
 const CMView=require("./cmview");
-const defaultrule=require("./defaultrule");
+const defaultrule=require("../defaultrule");
 const LinkedByPopup=require("./linkedbypopup");
-const linkedBy=require("./linkedby");
-const toMarkup=require("./bindings/tomarkup");
+const linkedBy=require("../linkedby");
+const toMarkup=require("../bindings/tomarkup");
 const CorpusView=React.createClass({
 	contextTypes:{
 		action:PT.func.isRequired,
@@ -68,11 +68,11 @@ const CorpusView=React.createClass({
 		const side=this.props.side;
 		const layouttag="p";
 
-		if (typeof address=="undefined"){
+		if (!address){
 			//scroll to the selection after layout
 			address=this.kRangeFromCursor(this.refs.cm.getCodeMirror());
 		}
-		const book=cor.bookOf(address);
+		var book=cor.bookOf(article.start);
 
 		const changetext=function(layout){
 			this.setState({text,linebreaks:layout.linebreaks,startkpos:article.start,
@@ -83,6 +83,10 @@ const CorpusView=React.createClass({
 
 		if (this.state.layout=='') {
 			cor.getBookField(layouttag,book,function(book_p){
+				if (!book_p) {
+					console.log(layouttag,book)
+					debugger;
+				}
 				const p=cor.trimField(book_p,article.start,article.end);
 				changetext.call(this, cor.layoutText(text,article.start,p.pos) );
 			}.bind(this));
@@ -106,8 +110,9 @@ const CorpusView=React.createClass({
 	}
 	,kRangeFromSel:function(cm,from,to){
 		const f=this.props.cor.fromLogicalPos.bind(this.props.cor);
-		const s=f(cm.doc.getLine(from.line),from.ch,this.state.linebreaks[from.line],this.getRawLine);
-		const e=f(cm.doc.getLine(to.line),to.ch,this.state.linebreaks[to.line],this.getRawLine);
+		const firstline=this.props.cor.bookLineOf(this.state.startkpos); //first of of the article
+		const s=f(cm.doc.getLine(from.line),from.ch,this.state.linebreaks[from.line],firstline,this.getRawLine);
+		const e=f(cm.doc.getLine(to.line),to.ch,this.state.linebreaks[to.line],firstline,this.getRawLine);
 		return this.props.cor.makeKRange(s,e);
 	}
 	,kRangeFromCursor:function(cm){

@@ -1,10 +1,10 @@
 const React=require("react");
 const E=React.createElement;
 const PT=React.PropTypes;
-const ControlPanel=require("./controlpanel");
+const ControlPanel=require("../controlpanel");
 const CorpusBinding=require("./corpusbinding");
-const Store=require("./bindings/bindingstore");
-var {action,listen,unlistenAll,getter,hasGetter,registerGetter,unregisterGetter}=require("./model");
+const Store=require("../bindings/bindingstore");
+var {action,listen,unlistenAll,getter,hasGetter,registerGetter,unregisterGetter}=require("../model");
 const CorpusBindingMode=React.createClass({
   getInitialState:function() {
     const store=Store(this.props.remotedata);

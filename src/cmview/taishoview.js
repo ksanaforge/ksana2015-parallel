@@ -1,13 +1,13 @@
 var React=require("react");
 var ReactDOM=require("react-dom");
-require("./loadfile");
+require("../loadfile");
 
 var E=React.createElement;
 var PT=React.PropTypes;
 var CodeMirror=require("ksana-codemirror").Component;
-var TopRightMenu=require("./toprightmenu");
+var TopRightMenu=require("../toprightmenu");
 var NotePopup=require("./notepopup");
-var coordinate=require("./coordinate");
+var coordinate=require("../coordinate");
 var verbose=false;
 
 var TaishoView=React.createClass({

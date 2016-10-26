@@ -1,16 +1,16 @@
 const React=require("react");
 const E=React.createElement;
 const PT=React.PropTypes;
-const ControlPanel=require("./controlpanel");
-const CorpusNote=require("./corpusnote");
-var {action,listen,unlistenAll,getter,registerGetter,unregisterGetter,hasGetter}=require("./model");
-const Store=require("./notes/notestore");
+const ControlPanel=require("../controlpanel");
+const CorpusTab=require("./corpustab");
+var {action,listen,unlistenAll,getter,registerGetter,unregisterGetter,hasGetter}=require("../model");
 
 
-const CorpusNoteMode=React.createClass({
+const CorpusTabMode=React.createClass({
   getInitialState:function() {
-    const store=Store(this.props.remotedata);
-    return {store};
+    //const store=Store(this.props.remotedata);
+    //return {store};
+    return {};
   }
   ,componentDidMount:function(){
   }
@@ -28,13 +28,13 @@ const CorpusNoteMode=React.createClass({
   }  
   ,render: function() {
     var props1=Object.assign({},this.props,
-      {style:styles.controls,store:this.state.store});
+      {style:styles.controls});
 
     var props2=Object.assign({},this.props,
-      {style:styles.body,scrollTo:this.state.ScrollTo,store:this.state.store});
+      {style:styles.body,scrollTo:this.state.ScrollTo});
 
     return E("div",{style:styles.topcontainer},
-      E(CorpusNote,props2),
+      E(CorpusTab,props2),
       E(ControlPanel,props1)
     )
   }
@@ -45,4 +45,4 @@ const styles={
   height:"100%",overflowY:"scroll",overflowX:"hidden"},
   body:{flex:4},
 }
-module.exports=CorpusNoteMode;
+module.exports=CorpusTabMode;

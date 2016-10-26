@@ -3,12 +3,12 @@ const E=React.createElement;
 const PT=React.PropTypes;
 const {openCorpus}=require("ksana-corpus");
 const Viewers={
-  default:require('./corpusview')
+  default:require('../cmview/corpusview')
 }
 const Menus={
-  default:require("./corpusmenu")
+  default:require("../corpusmenu")
 }
-const CorpusMapping = React.createClass({
+const CorpusTab = React.createClass({
   getInitialState:function() {
     return {};
   },
@@ -40,4 +40,4 @@ const CorpusMapping = React.createClass({
   	)
   }
 });
-module.exports=CorpusMapping;
+module.exports=CorpusTab;

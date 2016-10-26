@@ -22,7 +22,7 @@ var LoginBox=React.createClass({
   }
   ,componentDidMount:function(){
   	if (localStorage.getItem(this.props.lskey)){
-  		this.googleSignIn();
+//  		this.googleSignIn();
   	}
     this.context.registerGetter("user",this.getUser);
   }
