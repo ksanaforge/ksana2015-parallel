@@ -22,7 +22,7 @@ const NoteView=React.createClass({
 	,componentDidMount:function(){
 		this.context.listen("noteloaded",this.noteloaded,this);
 		this.oldkposs=this.props.cor.extractKPos(this.state.text);
-		this.renderText(this.state.text);
+		this.renderText(this.state.text,this.props.scrollTo);
 	}
 	,componentWillUnmount:function(){
 		this.context.unlistenAll(this);
@@ -42,11 +42,10 @@ const NoteView=React.createClass({
 		const cm=this.refs.cm.getCodeMirror();
 		cm.setOption('readOnly',(opts.id && !this.context.getter('user')));
 		this.setState(opts,function(){
-			this.renderText(opts.text);
-			if (opts.scrollTo) this.scrollToAddress(opts.scrollTo);
+			this.renderText(opts.text,opts.scrollTo);
 		}.bind(this))
 	}
-	,renderText:function(str){
+	,renderText:function(str,scrollTo){
 		var ranges=[];
 		const cor=this.props.cor;
 		const cm=this.refs.cm.getCodeMirror();
@@ -68,6 +67,7 @@ const NoteView=React.createClass({
 
 			cm.setValue(renderedText);
 			this.updateTransclusion(transclusions);
+			if (scrollTo) this.scrollToAddress(scrollTo);
 		}.bind(this));		
 	}
 	,insertTransclusion:function(cm,address){
