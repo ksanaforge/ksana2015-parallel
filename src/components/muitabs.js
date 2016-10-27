@@ -20,9 +20,9 @@ const Tabs=React.createClass({
 		this.setState({selectedIndex});
 	}
 	,render:function(){
-		var tabEls = [], paneEls=[];
+		var tabEls = [], paneEls=[], _=this.context._;
 		for (var i=0;i<this.props.tabs.length;i++) {
-			const label=this.props.tabs[i];
+			const label=this.props.tabs[i][1];
 			const isActive = (i === this.state.selectedIndex) ? true : false;
 			tabEls.push(E("li",{key:i,className:(isActive) ? isActiveClass : '',
 				},E("a",{onClick:this.onTabClick,"data-i":i},label))

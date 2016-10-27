@@ -1,4 +1,4 @@
-const M=require("../model");
+const M=require("../units/model");
 const onLink=function(corpusname,articlename,cb,context){
 	const value=cb.value, added=cb.added,removed=cb.removed,API=this.API;
 

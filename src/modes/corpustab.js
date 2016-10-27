@@ -1,7 +1,7 @@
 const React=require("react");
 const E=React.createElement;
 const PT=React.PropTypes;
-const {openCorpus}=require("ksana-corpus");
+const openCorpus=require("ksana-corpus").openCorpus;
 const Tabs=require("../components/muitabs");
 const StockTabs={
   search:require("../tabs/searchtab"),
@@ -16,6 +16,9 @@ const Menus={
 const CorpusTab = React.createClass({
   getInitialState:function() {
     return {panes:this.buildPane()};
+  }
+  ,contextTypes:{
+    _:PT.func.isRequired
   }
   ,buildPane:function(){
     var panes=[];
@@ -47,13 +50,16 @@ const CorpusTab = React.createClass({
     var LeftMenu=Menus[this.props.leftMenu||"default"];
     var RightMenu=Menus[this.props.RightMenu||"default"];
 
+    const tabs=this.props.tabs.map(function(t){
+      return [t,this.context._(t)]}.bind(this)//locale string
+    );
   	return E("div",{style:this.props.style},
   		E("div",{style:{display:'flex'}},
   			E("div",{style:{flex:this.props.leftFlex||1}},
   				E(LeftView,{side:0,cor:this.state.cor,corpus:this.props.corpus,
             menu:LeftMenu,address:this.props.address})),
   			E("div",{style:{flex:this.props.rightFlex||1}}
-          ,E(Tabs,{panes:this.state.panes,tabs:this.props.tabs}))
+          ,E(Tabs,{panes:this.state.panes,tabs}))
   		)
   	)
   }

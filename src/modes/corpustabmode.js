@@ -2,9 +2,9 @@ const React=require("react");
 const E=React.createElement;
 const PT=React.PropTypes;
 const CorpusTab=require("./corpustab");
-var {action,listen,unlistenAll,getter,registerGetter,
-  unregisterGetter,hasGetter}=require("../model");
-
+const {action,listen,unlistenAll,getter,registerGetter,
+  unregisterGetter,hasGetter}=require("../units/model");
+const _=require("../units/localization")._;
 
 const CorpusTabMode=React.createClass({
   getInitialState:function() {
@@ -22,9 +22,10 @@ const CorpusTabMode=React.createClass({
     ,getter: PT.func
     ,registerGetter:PT.func
     ,unregisterGetter:PT.func
+    ,_:PT.func
   }
   ,getChildContext:function(){
-    return {action,listen,unlistenAll,getter,hasGetter,registerGetter,unregisterGetter};
+    return {action,listen,unlistenAll,getter,hasGetter,registerGetter,unregisterGetter,_};
   }  
   ,render: function() {
     var props1=Object.assign({},this.props,

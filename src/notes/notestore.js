@@ -1,4 +1,4 @@
-const M=require("../model");
+const M=require("../units/model");
 //	const database=this.API.firebase.database();
 const emptynote=require("./emptynote");
 const notesFromSnapshot=function(snapshot){
