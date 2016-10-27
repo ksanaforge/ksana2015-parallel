@@ -1,9 +1,9 @@
 const React=require("react");
 const E=React.createElement;
 const PT=React.PropTypes;
-const ControlPanel=require("../controlpanel");
 const CorpusTab=require("./corpustab");
-var {action,listen,unlistenAll,getter,registerGetter,unregisterGetter,hasGetter}=require("../model");
+var {action,listen,unlistenAll,getter,registerGetter,
+  unregisterGetter,hasGetter}=require("../model");
 
 
 const CorpusTabMode=React.createClass({
@@ -34,8 +34,7 @@ const CorpusTabMode=React.createClass({
       {style:styles.body,scrollTo:this.state.ScrollTo});
 
     return E("div",{style:styles.topcontainer},
-      E(CorpusTab,props2),
-      E(ControlPanel,props1)
+      E(CorpusTab,props2)
     )
   }
 })
