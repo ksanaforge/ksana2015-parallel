@@ -45,7 +45,9 @@ const NoteList=React.createClass({
 	,openNote:function(opts){
 		opts=opts||{};
 		if (!opts.id)return;
+		this.setState({loading:true});
 		this.props.store.openNote(opts.id,function(data){
+			this.setState({loading:false});
 			this.context.action("noteloaded",
 				{id:opts.id,text:data.text,title:data.title,scrollTo:opts.scrollTo});
 		}.bind(this));
@@ -54,7 +56,6 @@ const NoteList=React.createClass({
 		const id=e.target.dataset.id;
 		id&&this.openNote({id});
 	}
-
 	,renderUserNote:function(item,key){
 		return E("div",{key},
 			E("span",{style:styles.notetitle,
@@ -68,6 +69,9 @@ const NoteList=React.createClass({
 			,className:"mui-btn mui-btn--primary"},"New Note"):null;
 	}
 	,render:function(){
+		if (this.state.loading) {
+			return E("div",{},"opening note");
+		}
 		return E("div",{},
 				this.renderButtons(),
 				this.state.usernotes.map(this.renderUserNote)
