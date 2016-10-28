@@ -37,12 +37,13 @@ const CMView=React.createClass({
 	}
 	,jumpToRange:function(from,to){
 		var cm=this.refs.cm.getCodeMirror();
-		cm.setCursor(to);
+		cm.setCursor(from);
 		if (from.ch!==to.ch||from.line!==to.line) {
 			cm.markText(from,to,{className:"gotomarker",clearOnEnter:true});
 		}
 		cm.focus();
-		cm.scrollIntoView(to,200);
+		cm.scrollIntoView({line:from.line+100,ch:from.ch});
+		cm.scrollIntoView(from,200);
 	}
 	,scrollToText:function(t){
 		var cm=this.refs.cm.getCodeMirror();

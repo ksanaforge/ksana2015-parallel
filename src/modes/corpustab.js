@@ -5,7 +5,10 @@ const openCorpus=require("ksana-corpus").openCorpus;
 const Tabs=require("../components/muitabs");
 const StockTabs={
   search:require("../tabs/searchtab"),
-  toc:require("../tabs/toctab")
+  toc:require("../tabs/toctab"),
+  config:require("../tabs/configtab"),
+  dictionary:require("../tabs/toctab"),
+  source:require("../tabs/toctab")
 }
 const Viewers={
   default:require('../cmview/corpusview')

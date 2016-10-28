@@ -28,14 +28,14 @@ const Tabs=React.createClass({
 				},E("a",{onClick:this.onTabClick,"data-i":i},label))
 			);
 
-			var className = 'mui-tabs__pane';
+			var className = 'mui-tabs__pane ';
       if (isActive) className += isActiveClass;
 
 			paneEls.push(E("div",{key:i,className},this.props.panes[i]));
 		}
 
 		return E("div",{},
-				E("ul",{className:'mui-tabs__bar'},tabEls)
+				E("ul",{className:'mui-tabs__bar mui-tabs__bar--justified'},tabEls)
 			,paneEls);
 	}
 });

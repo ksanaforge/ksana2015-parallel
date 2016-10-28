@@ -6,6 +6,7 @@ const defaultrule=require("../defaultrule");
 const LinkedByPopup=require("./linkedbypopup");
 const linkedBy=require("../linkedby");
 const toMarkup=require("../bindings/tomarkup");
+const addressHashTag=require("../units/addresshashtag");
 const CorpusView=React.createClass({
 	contextTypes:{
 		action:PT.func.isRequired,
@@ -76,7 +77,7 @@ const CorpusView=React.createClass({
 
 		const changetext=function(layout){
 			this.setState({text,linebreaks:layout.linebreaks,startkpos:article.start,
-				pagebreaks:layout.pagebreaks,layout:this.state.layout?'':layouttag,article});
+				pagebreaks:layout.pagebreaks,article});
 			this.context.action("loaded",
 					{articlename:article.articlename,data:layout.lines.join("\n"),side,address});
 		}
@@ -98,8 +99,10 @@ const CorpusView=React.createClass({
 		this.context.listen("goto",this.goto,this);
 		this.context.listen("toggleLayout",this.toggleLayout,this);
 		this.context.listen("highlightAddress",this.highlightAddress,this);
-		if (!this.props.cor || !this.props.address) return;
-		this.goto({address:this.props.address,corpus:this.props.cor.meta.name});
+		if (!this.props.cor) return;
+		var address=this.props.address;
+		if (!address) address=addressHashTag.getAddress(this.props.cor.meta.name);		
+		address&this.goto({address,corpus:this.props.cor.meta.name});	
 	}
 	,componentWillUnmount:function(){
 		this.context.unlistenAll();
@@ -138,33 +141,25 @@ const CorpusView=React.createClass({
 			const sel=sels[0];
 			const start=cm.indexFromPos(sel.anchor);
 			const end=cm.indexFromPos(sel.head);
-			if (Math.abs(start-end)) {
-				const range=this.kRangeFromSel(cm,sel.head,sel.anchor);
-				this.context.action("selection",
-					{corpus:this.props.corpus,article:this.state.article.articlename,range});
-			} else {
-				this.context.action("selection",
-					{corpus:this.props.corpus,article:this.state.article.articlename,range:0});
-			}
+			const range=this.kRangeFromSel(cm,sel.head,sel.anchor);
+			this.context.action("selection",
+				{cor:this.props.cor,corpus:this.props.corpus,
+					article:this.state.article.articlename,start,end,range}
+			);
 		}
-	}
-	,showCursorKPos:function(cm){
-		const cor=this.props.cor;
-		const cursor=cm.getCursor();
-		const krange=this.kRangeFromSel(cm,cursor,cursor);
-		console.log(cor.stringify(krange));
 	}
 	,showLinkPopup:function(cm){
 		const cursor=cm.getCursor();
 		const cor=this.props.cor;
 		const marks=cm.findMarksAt(cursor);
 		const kRangeFromSel=this.kRangeFromSel;
-		const links=marks.map(function(m){
+		var links=marks.map(function(m){
 			const p=m.find();
 			const krange=kRangeFromSel(cm,p.from,p.to);
 			const caption=cor.stringify(krange);
 			return [caption,m.noteid]
 		});
+		links=links.filter(function(l){return l[1]});
 		if (links.length) {
 			const coords=cm.charCoords(cursor);
 			this.setState({popupX:coords.left,popupY:coords.top+30,links});
@@ -175,7 +170,6 @@ const CorpusView=React.createClass({
 	,onCursorActivity:function(cm){
 		clearTimeout(this.cursortimer);
 		this.cursortimer=setTimeout(function(){
-			this.showCursorKPos(cm);
 			this.detectSelection(cm);
 			this.showLinkPopup(cm);
 		}.bind(this),300);

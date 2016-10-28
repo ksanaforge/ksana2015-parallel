@@ -5,6 +5,7 @@ const CorpusTab=require("./corpustab");
 const {action,listen,unlistenAll,getter,registerGetter,
   unregisterGetter,hasGetter}=require("../units/model");
 const _=require("../units/localization")._;
+require("../units/addresshashtag");
 
 const CorpusTabMode=React.createClass({
   getInitialState:function() {

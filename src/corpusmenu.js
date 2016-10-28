@@ -25,9 +25,9 @@ var CorpusMenu=React.createClass({
 		return	E("div",{style:styles.container},
 				E("div",{style:styles.viewcontrols},
 					E("input",{size:11,value:this.state.address,onChange:this.onChange
-						,onKeyPress:this.onKeyPress}),
-					E("br"),
-					E("button",{onClick:this.toggleLayout},"Layout")
+						,onKeyPress:this.onKeyPress})
+					//E("br"),
+					//E("button",{onClick:this.toggleLayout},"Layout")
 				)
 		)
 	}
