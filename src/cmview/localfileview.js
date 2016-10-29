@@ -3,7 +3,7 @@ const ReactDOM=require("react-dom");
 const E=React.createElement;
 const PT=React.PropTypes;
 const CMView=require("./cmview");
-require("../loadfile");
+require("../units/loadfile");
 var TopRightMenu=require("../toprightmenu");
 
 const LocaFileView=React.createClass({

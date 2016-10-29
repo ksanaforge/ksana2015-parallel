@@ -42,7 +42,8 @@ const CMView=React.createClass({
 			cm.markText(from,to,{className:"gotomarker",clearOnEnter:true});
 		}
 		cm.focus();
-		cm.scrollIntoView({line:from.line+100,ch:from.ch});
+		const linedown=(from.line+100>=cm.lineCount())?cm.linecount:from.line+100;
+		cm.scrollIntoView({line:linedown,ch:from.ch});
 		cm.scrollIntoView(from,200);
 	}
 	,scrollToText:function(t){
@@ -97,6 +98,7 @@ const CMView=React.createClass({
 				rule,
 				text:this.state.popupText}),
 			E(this.props.menu,{side:this.props.side,address:this.props.address,
+				nav:this.props.nav,articlename:this.props.articlename,
 				buttons:this.props.docs,selected:this.props.doc,corpus:this.props.corpus}),
 	  	E(CodeMirror,{ref:"cm",value:"",theme:"ambiance",readOnly:true,
   	  onCursorActivity:this.props.onCursorActivity

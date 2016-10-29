@@ -1,42 +1,28 @@
-var React=require("react");
-var E=React.createElement;
-var PT=React.PropTypes;
+const React=require("react");
+const E=React.createElement;
+const PT=React.PropTypes;
+const TOCNav=require("./menu/tocnav");
+const ArticleNav=require("./menu/articlenav");
 
 var CorpusMenu=React.createClass({
 	getInitialState:function(){
 		return {address:this.props.address};
 	}
-	,contextTypes:{
-		action:PT.func.isRequired
-	}
-	,goto:function(){
-		this.context.action("goto",{corpus:this.props.corpus,address:this.state.address});
-	}
-	,onChange:function(e){
-		this.setState({address:e.target.value});
-	}
-	,onKeyPress:function(e){
-		if (e.key==="Enter")this.goto();
-	}
-	,toggleLayout:function(){
-		this.context.action("toggleLayout",{corpus:this.props.corpus,side:this.props.side});
-	}
 	,render:function(){
+		const hasnav=this.props.nav.includes.bind(this.props.nav);
 		return	E("div",{style:styles.container},
 				E("div",{style:styles.viewcontrols},
-					E("input",{size:11,value:this.state.address,onChange:this.onChange
-						,onKeyPress:this.onKeyPress})
-					//E("br"),
-					//E("button",{onClick:this.toggleLayout},"Layout")
+					hasnav("toc")?E(TOCNav,this.props):null,
+					E("br"),
+					hasnav("article")?E(ArticleNav,this.props):null
 				)
 		)
 	}
 })
 
-var styles={
+const styles={
 	button:{fontSize:20,borderRadius:"10%"},
-	selectedButton:{background:"blue",color:"white"},
-	container:{position:"relative",zIndex:100,opacity:0.7},
-	viewcontrols:{position:"absolute",right:20,top:5} //for scrollbar
+	container:{position:"relative",zIndex:100,opacity:0.9},
+	viewcontrols:{position:"absolute",top:0,right:18} //for scrollbar
 }
 module.exports=CorpusMenu;

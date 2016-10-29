@@ -4,7 +4,7 @@ const PT=React.PropTypes;
 const ControlPanel=require("../controlpanel");
 const TwoColumn=require("./twocolumn");
 
-const {action,listen,unlistenAll,getter,registerGetter,unregisterGetter}=require("../model");
+const {action,listen,unlistenAll,getter,registerGetter,unregisterGetter}=require("../units/model");
 
 const modemain = React.createClass({
   getInitialState:function() {

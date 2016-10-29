@@ -49,9 +49,7 @@ const CorpusTab = React.createClass({
       return E("div",{},"loading");
     }
     var LeftView=Viewers[this.props.leftView||"default"];
-    var RightView=Viewers[this.props.rightView||"default"];
     var LeftMenu=Menus[this.props.leftMenu||"default"];
-    var RightMenu=Menus[this.props.RightMenu||"default"];
 
     const tabs=this.props.tabs.map(function(t){
       return [t,this.context._(t)]}.bind(this)//locale string
@@ -60,7 +58,7 @@ const CorpusTab = React.createClass({
   		E("div",{style:{display:'flex'}},
   			E("div",{style:{flex:this.props.leftFlex||1}},
   				E(LeftView,{side:0,cor:this.state.cor,corpus:this.props.corpus,
-            menu:LeftMenu,address:this.props.address})),
+            menu:LeftMenu,address:this.props.address,nav:this.props.nav})),
   			E("div",{style:{flex:this.props.rightFlex||1}}
           ,E(Tabs,{panes:this.state.panes,tabs}))
   		)

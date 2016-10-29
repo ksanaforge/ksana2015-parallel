@@ -1,6 +1,6 @@
 var React=require("react");
 var ReactDOM=require("react-dom");
-require("../loadfile");
+require("../units/loadfile");
 
 var E=React.createElement;
 var PT=React.PropTypes;
