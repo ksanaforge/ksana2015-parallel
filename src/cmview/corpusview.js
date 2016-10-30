@@ -29,9 +29,9 @@ const CorpusView=React.createClass({
 		const range=cor.parseRange(opts.address);
 		const article=cor.articleOf(range.start);
 		if (!article)return;
-		if (this.state.article.articlename&& this.props.store) {
-			this.props.store.offLinkedBy&&this.props.store.offLinkedBy(this.state.article.articlename);
-			this.props.store.offLink&&this.props.store.offLink(opts.corpus,this.state.article.articlename);
+		if (article.articlename&& this.props.store) {
+			this.props.store.offLinkedBy&&this.props.store.offLinkedBy(article.articlename);
+			this.props.store.offLink&&this.props.store.offLink(opts.corpus,article.articlename);
 		}
 		cor.getArticleText(article.at,function(text){
 			if (!text)return;
@@ -101,10 +101,7 @@ const CorpusView=React.createClass({
 		const corpus=this.props.cor.meta.name;
 		if (opts.corpus!==corpus) return;
 		const r=this.props.cor.getArticle(this.state.article.at,nav);
-		//goto need to feed a range
-		//article might cross book, cannot use r.end
-		const address=this.props.cor.makeKRange(r.start+5,r.start+6);
-		if(r) this.goto({corpus,address});
+		if(r) this.goto({corpus,address:r.start});
 	}
 	,nextArticle:function(opts){
 		this.getArticle(opts,1);

@@ -23,6 +23,6 @@ var CorpusMenu=React.createClass({
 const styles={
 	button:{fontSize:20,borderRadius:"10%"},
 	container:{position:"relative",zIndex:100,opacity:0.9},
-	viewcontrols:{position:"absolute",top:0,right:18} //for scrollbar
+	viewcontrols:{position:"absolute",top:0,right:18,width:"97%"} //for scrollbar
 }
 module.exports=CorpusMenu;

@@ -25,7 +25,7 @@ TOCNav=React.createClass({
 		}.bind(this));
 	}
 	,onSelect:function(idx,address){
-		this.context.action("goto",{corpus:this.props.corpus,address });
+		this.context.action("goto",{corpus:this.props.corpus,address});
 	}
 	,render:function(){
 
