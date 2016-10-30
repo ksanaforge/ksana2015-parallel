@@ -17,7 +17,7 @@ const CorpusView=React.createClass({
 		store:PT.object
 	}
 	,getInitialState:function(){
-		return {startkpos:0,popupX:0,popupY:0,article:{},
+		return {startkpos:1,popupX:0,popupY:0,article:{},
 			links:[],layout:'p',linebreaks:[],pagebreaks:[]
 		};
 	}
@@ -47,6 +47,7 @@ const CorpusView=React.createClass({
 		res.address&&this.scrollToAddress(res.address);
 	}
 	,getRawLine:function(line){
+		if (!this.state.text)return "";
 		return this.state.text[line];
 	}
 	,scrollToAddress:function(address){
@@ -96,17 +97,20 @@ const CorpusView=React.createClass({
 			changetext.call(this, cor.layoutText(text,article.start) );
 		}
 	}
-	,nextArticle:function(opts){
+	,getArticle:function(opts,nav){
 		const corpus=this.props.cor.meta.name;
 		if (opts.corpus!==corpus) return;
-		const r=this.props.cor.getArticle(this.state.article.at,1);
-		if(r) this.goto({corpus,address:r.start});
+		const r=this.props.cor.getArticle(this.state.article.at,nav);
+		//goto need to feed a range
+		//article might cross book, cannot use r.end
+		const address=this.props.cor.makeKRange(r.start+5,r.start+6);
+		if(r) this.goto({corpus,address});
+	}
+	,nextArticle:function(opts){
+		this.getArticle(opts,1);
 	}
 	,prevArticle:function(opts){
-		const corpus=this.props.cor.meta.name;
-		if (opts.corpus!==corpus) return;
-		const r=this.props.cor.getArticle(this.state.article.at,-1);
-		if(r) this.goto({corpus,address:r.start});
+		this.getArticle(opts,-1);
 	}
 	,componentDidMount:function(){
 		this.context.listen("goto",this.goto,this);

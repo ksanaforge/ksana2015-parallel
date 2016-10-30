@@ -21,7 +21,7 @@ TOCNav=React.createClass({
 	,onSelection:function(opts){
 		const kpos=opts.start;
 		opts.cor.getSubTOC(opts.start,function(tocs){
-			this.setState({toc:tocs[0],kpos});
+			this.setState({toc:tocs[0]||[],kpos});
 		}.bind(this));
 	}
 	,onSelect:function(idx,address){

@@ -4,7 +4,7 @@ const AddressHashTag=function(){
 	var addresses={},selfsetting=false;
 	const setHashTag=function(opts){
 		var pos=[];
-		const rstr=opts.cor.stringify(opts.range);
+		const rstr=opts.cor.stringify(opts.start,opts.end);
 		addresses[opts.corpus]=rstr;
 		for (var corpus in addresses) {
 			pos.push(corpus+"@"+addresses[corpus]);
@@ -20,7 +20,7 @@ const AddressHashTag=function(){
 		const pos=window.location.hash.substr(1).split(",");
 		for (var i=0;i<pos.length;i++) {
 			const r=pos[i].split("@");
-			addresses[r[0]]=r[1];
+			if (r[0]) addresses[r[0]]=r[1];
 		}
 	}
 	
