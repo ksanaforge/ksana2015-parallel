@@ -8,6 +8,9 @@ var CorpusMenu=React.createClass({
 	getInitialState:function(){
 		return {address:this.props.address};
 	}
+	,getDefaultProps:function(){
+		return {nav:[]};
+	}
 	,render:function(){
 		const hasnav=this.props.nav.includes.bind(this.props.nav);
 		return	E("div",{style:styles.container},
