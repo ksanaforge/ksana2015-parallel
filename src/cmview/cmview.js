@@ -90,6 +90,9 @@ const CMView=React.createClass({
 	,onCopy:function(cm,evt){
 		this.props.onCopy&&this.props.onCopy(cm,evt);
 	}
+	,onKeyPress:function(cm,e){
+		//if (e.key==" ") this.toggleMark(cm);
+	}
 	,render:function(){
 		var rule=this.props.rule;
 		return E("div",{},
@@ -102,6 +105,7 @@ const CMView=React.createClass({
 				buttons:this.props.docs,selected:this.props.doc,corpus:this.props.corpus}),
 	  	E(CodeMirror,{ref:"cm",value:"",theme:"ambiance",readOnly:true,
   	  onCursorActivity:this.props.onCursorActivity
+  	  ,onKeyPress:this.onKeyPress
   	  ,onCopy:this.onCopy
   	  ,onViewportChange:this.props.onViewportChange})
   	 )

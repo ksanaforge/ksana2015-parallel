@@ -128,6 +128,7 @@ const CorpusView=React.createClass({
 		}
 	}
 	,kRangeFromSel:function(cm,from,to){
+		if (!from||!to)return 0;
 		const f=this.props.cor.fromLogicalPos.bind(this.props.cor);
 		const firstline=this.props.cor.bookLineOf(this.state.startkpos); //first of of the article
 		const s=f(cm.doc.getLine(from.line),from.ch,this.state.linebreaks[from.line],firstline,this.getRawLine);
@@ -151,15 +152,32 @@ const CorpusView=React.createClass({
 		evt.target.value="@"+this.props.cor.stringify(krange)+';';
 		evt.target.select();//reselect the hidden textarea
 	}
+	,getCaretText:function(cm){ //get caretText for checking dictionary
+		const from=cm.getCursor();
+		var ch=from.ch;
+		if (ch>2) ch-=2; //include two char before
+		//should check punc backward
+		var caretText=cm.doc.getRange({line:from.line,ch},{line:from.line+1,ch:256});
+		caretText=caretText.replace(/\r?\n/g,"");
+		const m=caretText.match(/^[.？,。，！；「」『』—－：、（）｛｝【】《》]*(.*?)[.？,。，！；「」『』—－：、（）｛｝【】《》]/);
+		if (m){
+			caretText=m[1];
+		}
+		return caretText;
+	}
 	,detectSelection:function(cm){
 		const sels=cm.listSelections();	
 		if (sels.length>0){
 			const sel=sels[0];
 			const range=this.kRangeFromSel(cm,sel.head,sel.anchor);
 			const r=this.props.cor.parseRange(range);
+			const selectionText=cm.doc.getSelection();
+
 			this.context.action("selection",
 				{cor:this.props.cor,corpus:this.props.corpus,
-					article:this.state.article.articlename,start:r.start,end:r.end,range}
+					caretText:this.getCaretText(cm),selectionText,
+					article:this.state.article.articlename,
+					start:r.start,end:r.end,range}
 			);
 		}
 	}

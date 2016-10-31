@@ -7,8 +7,8 @@ const StockTabs={
   search:require("../tabs/searchtab"),
   toc:require("../tabs/toctab"),
   config:require("../tabs/configtab"),
-  dictionary:require("../tabs/toctab"),
-  source:require("../tabs/toctab")
+  dictionary:require("../tabs/dictionarytab"),
+  source:require("../tabs/sourcetab")
 }
 const Viewers={
   default:require('../cmview/corpusview')
@@ -26,8 +26,9 @@ const CorpusTab = React.createClass({
   ,buildPane:function(){
     var panes=[];
     for (var i=0;i<this.props.tabs.length;i++) {
-      const tabname=this.props.tabs[i];
-      panes.push( E(StockTabs[tabname],this.props));
+      const name=this.props.tabs[i];
+      const props=Object.assign({},this.props,{name});
+      panes.push( E(StockTabs[name],props));
     }
     return panes;
   }
