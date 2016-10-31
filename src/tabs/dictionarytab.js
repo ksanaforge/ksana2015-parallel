@@ -5,7 +5,7 @@ const DictionaryTab=React.createClass({
 	contextTypes:{
 		listen:PT.func.isRequired
 		,unlistenAll:PT.func.isRequired
-		,isActive:PT.func.isRequired
+		,getActiveTab:PT.func.isRequired
 	}
 	,getInitialState:function(){
 		return {caretText:""};
@@ -17,7 +17,7 @@ const DictionaryTab=React.createClass({
 		this.context.unlistenAll(this);
 	}
 	,onSelection:function(opts){
-		if (this.context.isActive(this.props.name)) {
+		if (this.context.getActiveTab()==this.props.name) {
 			this.setState({caretText:opts.caretText});
 		} else {
 			console.log("dictionary not active")

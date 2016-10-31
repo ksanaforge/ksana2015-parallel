@@ -7,24 +7,24 @@ const tabsBarJustifiedClass = 'mui-tabs__bar--justified',
 
 const Tabs=React.createClass({
 	getInitialState:function(){
-		return {selectedIndex:0,activeTab:""}
+		return {selectedIndex:0}
 	}
 	,propTypes:{
 		panes:PT.array.isRequired,
 		tabs:PT.array.isRequired
 	}
 	,childContextTypes:{
-		isActive:PT.func
+		getActiveTab:PT.func
 	}
-	,isActive:function(name){
-		return name==this.state.activeTab;
+	,getActiveTab:function(name){
+		return this.props.tabs[this.state.selectedIndex][0];
 	}
 	,getChildContext(){
-		return {isActive:this.isActive};
+		return {getActiveTab:this.getActiveTab};
 	}
 	,onTabClick:function(e){
 		const selectedIndex=parseInt(e.target.dataset.i,10);
-		this.setState({selectedIndex,activeTab:this.props.tabs[selectedIndex][0]});
+		this.setState({selectedIndex});
 	}
 	,render:function(){
 		var tabEls = [], paneEls=[], _=this.context._;
