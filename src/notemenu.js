@@ -25,8 +25,8 @@ const NoteMenu=React.createClass({
 	}
 	,onTitleKeyPress:function(e){
 		if (e.key!=="Enter")return;
-		const uid=this.context.getter("user");
-		if (!uid) return;
+		const user=this.context.getter("user");
+		if (!user) return;
 		if (this.state.title=="") {
 			this.props.deleteNote(this.props.noteid);
 		} else {

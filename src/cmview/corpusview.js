@@ -116,8 +116,8 @@ const CorpusView=React.createClass({
 		this.context.listen("nextArticle",this.nextArticle,this);
 		this.context.listen("prevArticle",this.prevArticle,this);
 		if (!this.props.cor) return;
-		var address=this.props.address;
-		if (!address) address=addressHashTag.getAddress(this.props.cor.meta.name);		
+		var address=addressHashTag.getAddress(this.props.cor.meta.name);		
+		if (!address)  address=this.props.address;
 		address&this.goto({address,corpus:this.props.cor.meta.name});	
 	}
 	,componentWillUnmount:function(){
