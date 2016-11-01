@@ -1,5 +1,6 @@
 	,onNoteClick:function(e){
 		console.log(e)
+
 	}
 	,createMark:function(cm){
 		const from=cm.getCursor();
@@ -18,3 +19,4 @@
 			this.createMark(cm);
 		}
 	}
+module.exports={createMark};

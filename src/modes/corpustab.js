@@ -59,6 +59,7 @@ const CorpusTab = React.createClass({
   		E("div",{style:{display:'flex'}},
   			E("div",{style:{flex:this.props.leftFlex||1}},
   				E(LeftView,{side:0,cor:this.state.cor,corpus:this.props.corpus,
+            decorations:this.props.decorations,
             menu:LeftMenu,address:this.props.address,nav:this.props.nav})),
   			E("div",{style:{flex:this.props.rightFlex||1}}
           ,E(Tabs,{panes:this.state.panes,tabs}))

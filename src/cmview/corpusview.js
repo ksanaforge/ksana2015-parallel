@@ -7,6 +7,7 @@ const LinkedByPopup=require("./linkedbypopup");
 const linkedBy=require("../linkedby");
 const toMarkup=require("../bindings/tomarkup");
 const addressHashTag=require("../units/addresshashtag");
+const decorations=require("../decorations/");
 const CorpusView=React.createClass({
 	contextTypes:{
 		action:PT.func.isRequired,
@@ -38,6 +39,15 @@ const CorpusView=React.createClass({
 			this.layout(article,text,opts.address);
 		}.bind(this));
 	}
+	,toLogicalPos:function(address){
+		return this.props.cor.toLogicalPos(this.state.linebreaks,address,this.getRawLine);		
+	}
+	,decorate:function(){
+		this.props.decorations.forEach(function(d){
+			decorations[d]&&decorations[d](this.props.cor,this.state.article,
+				this.refs.cm.getCodeMirror(),this.toLogicalPos);
+		}.bind(this));
+	}
 	,onLoaded:function(res){
 		const store=this.props.store;
 		if (store){
@@ -45,6 +55,7 @@ const CorpusView=React.createClass({
 			store.onLink&&store.onLink(this.props.cor.meta.name,res.articlename,toMarkup,this);	
 		}		
 		res.address&&this.scrollToAddress(res.address);
+		this.decorate();
 	}
 	,getRawLine:function(line){
 		if (!this.state.text)return "";
