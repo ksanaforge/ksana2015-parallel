@@ -1,16 +1,22 @@
 const action=require("../units/model").action;
-const onPtrClick=function(e){
+const onPtrMouseDown=function(e){
 	const target=e.target;
 	const address=parseInt(target.dataset.target,10);
-	action("goto",{corpus:target.cor.meta.name,address});
+	e.cancelBubble=true;
+	e.preventDefault();
+	e.stopPropagation();
+	setTimeout(function(){
+		action("goto",{corpus:target.cor.meta.name,address});
+	},1);
 }
-const onDefClick=onPtrClick;
+const onDefMouseDown=onPtrMouseDown;
 var entertimer;
 const onPtrEnter=function(e){
 	const target=e.target;
 	clearTimeout(entertimer);
 	entertimer=setTimeout(function(){
-		const text=target.cor.getText(parseInt(target.dataset.target,10),function(data){
+		//+1 to include tailing puncuation
+		const text=target.cor.getText(parseInt(target.dataset.target,10)+1,function(data){
 			target.innerHTML=data;
 		});
 		target.innerHTML=text;//if text is ready, call back will be ignored
@@ -25,7 +31,7 @@ const createPtr=function(cm,cor,linech,text,target){
 	dom.innerHTML=text;
 	dom.dataset.text=text;
 	dom.dataset.target=target;
-	dom.onclick=onPtrClick;
+	dom.onmousedown=onPtrMouseDown;
 	dom.cor=cor;
 	dom.onmouseenter=onPtrEnter;
 	dom.onmouseleave=onPtrLeave;
@@ -37,7 +43,7 @@ const createDef=function(cm,cor,linech,text,target){
 	dom.innerHTML=text;
 	dom.dataset.text=text;
 	dom.dataset.target=target;
-	dom.onclick=onDefClick;
+	dom.onmousedown=onDefMouseDown;
 	dom.cor=cor;
 	cm.setBookmark(linech,{widget:dom,handleMouseEvents:true});
 }
