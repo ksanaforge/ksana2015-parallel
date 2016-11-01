@@ -1,6 +1,10 @@
+const action=require("../units/model").action;
 const onPtrClick=function(e){
-	console.log(e.target.dataset.target);
+	const target=e.target;
+	const address=parseInt(target.dataset.target,10);
+	action("goto",{corpus:target.cor.meta.name,address});
 }
+const onDefClick=onPtrClick;
 var entertimer;
 const onPtrEnter=function(e){
 	const target=e.target;
@@ -27,6 +31,16 @@ const createPtr=function(cm,cor,linech,text,target){
 	dom.onmouseleave=onPtrLeave;
 	cm.setBookmark(linech,{widget:dom,handleMouseEvents:true});
 }
+const createDef=function(cm,cor,linech,text,target){
+	const dom=document.createElement("span");
+	dom.className="def";
+	dom.innerHTML=text;
+	dom.dataset.text=text;
+	dom.dataset.target=target;
+	dom.onclick=onDefClick;
+	dom.cor=cor;
+	cm.setBookmark(linech,{widget:dom,handleMouseEvents:true});
+}
 const note=function(cor,article,cm,toLogicalPos){
 	cor.getArticleField(["ptr","def"],article,function(data){
 		const ptr_pv=data[0], def_pv=data[1];
@@ -38,6 +52,8 @@ const note=function(cor,article,cm,toLogicalPos){
 		});
 		def_pv.pos.forEach(function(pos,idx){
 			//marktext
+			const linech=toLogicalPos(pos);
+			createDef(cm,cor,linech,idx+1,def_pv.value[idx]);
 		});
 	});
 
