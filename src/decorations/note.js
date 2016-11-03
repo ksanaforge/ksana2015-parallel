@@ -2,8 +2,6 @@ const action=require("../units/model").action;
 const onPtrMouseDown=function(e){
 	const target=e.target;
 	const address=parseInt(target.dataset.target,10);
-	e.cancelBubble=true;
-	e.preventDefault();
 	e.stopPropagation();
 	setTimeout(function(){
 		action("goto",{corpus:target.cor.meta.name,address});

@@ -43,6 +43,7 @@ const CorpusView=React.createClass({
 		return this.props.cor.toLogicalPos(this.state.linebreaks,address,this.getRawLine);		
 	}
 	,decorate:function(){
+		if (!this.props.decorations)return;
 		this.props.decorations.forEach(function(d){
 			decorations[d]&&decorations[d](this.props.cor,this.state.article,
 				this.refs.cm.getCodeMirror(),this.toLogicalPos);

@@ -19,6 +19,8 @@ TOCNav=React.createClass({
 		this.context.unlistenAll(this);
 	}
 	,onSelection:function(opts){
+		opts=opts||{};
+		if (opts.side!==this.props.side)return;
 		const kpos=opts.start;
 		opts.cor.getSubTOC(opts.start,function(tocs){
 			this.setState({toc:tocs[0]||[],kpos});
