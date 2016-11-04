@@ -62,6 +62,14 @@ const CorpusView=React.createClass({
 		if (!this.state.text)return "";
 		return this.state.text[line];
 	}
+	,lineWidget:function(opts){
+		if (opts.corpus!==this.props.corpus)return;
+		const cm=this.refs.cm.getCodeMirror();
+		const linech=this.toLogicalPos(opts.address);
+		if (linech.line==-1)return;
+		if (this.linewidget) this.linewidget.clear();
+		this.linewidget=cm.setBookmark(linech,{widget:opts.widget,handleMouseEvents:true});
+	}
 	,scrollToAddress:function(address){
 		const r=this.props.cor.toLogicalRange(this.state.linebreaks,address,this.getRawLine);
 		if (!r || r.start.line<0)return;
@@ -93,7 +101,8 @@ const CorpusView=React.createClass({
 			this.setState({text,linebreaks:layout.linebreaks,startkpos:article.start,
 				pagebreaks:layout.pagebreaks,article});
 			this.context.action("loaded",
-					{articlename:article.articlename,data:layout.lines.join("\n"),side,address});
+					{articlename:article.articlename,
+						data:layout.lines.join("\n"),side,address});
 		}
 
 		if (this.state.layout=='') {
@@ -127,10 +136,19 @@ const CorpusView=React.createClass({
 		this.context.listen("highlightAddress",this.highlightAddress,this);
 		this.context.listen("nextArticle",this.nextArticle,this);
 		this.context.listen("prevArticle",this.prevArticle,this);
+		this.context.listen("charWidget",this.charWidget,this);
+		this.context.listen("lineWidget",this.lineWidget,this);
 		if (!this.props.cor) return;
 		var address=addressHashTag.getAddress(this.props.cor.meta.name);		
 		if (!address)  address=this.props.address;
 		address&this.goto({address,corpus:this.props.cor.meta.name});	
+	}
+	,charWidget:function(opts){
+		if (opts.corpus!=this.props.corpus)return;
+		const linech=this.toLogicalPos(opts.address);
+		const cm=this.refs.cm.getCodeMirror();
+		if (this.charwidget)this.charwidget.clear();
+		this.charwidget=cm.setBookmark(linech,{widget:opts.widget,handleMouseEvents:true});
 	}
 	,componentWillUnmount:function(){
 		this.context.unlistenAll();
@@ -189,6 +207,7 @@ const CorpusView=React.createClass({
 				{cor:this.props.cor,corpus:this.props.corpus,
 					caretText:this.getCaretText(cm),selectionText,
 					article:this.state.article.articlename,
+					side:this.props.side,
 					start:r.start,end:r.end,range}
 			);
 		}

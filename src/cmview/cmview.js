@@ -41,7 +41,7 @@ const CMView=React.createClass({
 		if (from.ch!==to.ch||from.line!==to.line) {
 			cm.markText(from,to,{className:"gotomarker",clearOnEnter:true});
 		}
-		cm.focus();
+		// cm.focus();
 		const linedown=(from.line+100>=cm.lineCount())?cm.linecount:from.line+100;
 		cm.scrollIntoView({line:linedown,ch:from.ch});
 		cm.scrollIntoView(from,200);
