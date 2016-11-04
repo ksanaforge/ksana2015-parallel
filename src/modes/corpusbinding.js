@@ -38,26 +38,65 @@ const CorpusBinding = React.createClass({
     if (corpus==this.props.rightCorpus) return this.state.leftCor;
     else if (corpus===this.props.leftCorpus) return this.state.rightCor;
   }  
-  ,getCor:function(corpus){
+  ,gotoCounterpart:function(e){
+    clearTimeout(this.aligncounterpart);
+    const corpus=e.target.dataset.corpus;
+    //move caret to next char in order to show up counter part menu
+    const address=parseInt(e.target.dataset.address,10)+1;
+    const action=this.context.action;
+    this.aligncounterpart=setTimeout(function(){
+      action("goto",{corpus,address});
+    }.bind(this),300);
+  }
+  ,gotoSource:function(e){
+    clearTimeout(this.aligncounterpart);
+    const corpus=e.target.dataset.corpus;
+    //move caret to next char in order to show up counter part menu
+    const address=parseInt(e.target.dataset.address,10)+1;
+    const action=this.context.action;
+    this.aligncounterpart=setTimeout(function(){
+      action("goto",{corpus,address});
+    }.bind(this),300);
+  }
+  ,createSourcePageLink:function(opts){
+    const book=opts.cor.bookOf(opts.start);
+    const action=this.context.action;
+    const targetcorpus=this.counterpartcorpus(opts.corpus);
+    const onmouseenter=this.gotoSource;
+    const caption=this.props.alignpage;//button caption
+    opts.cor.getBookField(this.props.alignpage,book,function(data){
+      if (!data.pos) return;
+      const at=bsearch(data.pos,opts.start,true);
+      if (at<1) return;
+      const targetaddress=data.value[at-1];
+      const widget=document.createElement("span");
+      widget.onmouseenter=onmouseenter;
+      widget.className="sourcepage";
+      widget.innerHTML=caption;
+      widget.dataset.corpus=targetcorpus;
+      widget.dataset.address=targetaddress;
+      action("charWidget",{corpus:opts.corpus,address:data.pos[at-1],widget});
+    });    
+  }
+  ,createCounterPartLinks:function(opts){
+    const action=this.context.action;
+    const address=opts.cor.pageStart(opts.start);
 
+    const widget=document.createElement("span");
+    widget.onmouseenter=onmouseenter;
+    widget.className="counterparts";
+    widget.innerHTML="Nanchuan....";
+    widget.dataset.corpus="nanchuan";
+    widget.dataset.address=address;
+    widget.onmouseenter=this.gotoCounterpart;
+
+    action("lineWidget",{corpus:opts.corpus,address,widget});
   }
   ,onSelection:function(opts){
-    if (opts.corpus!==this.props.alignpage) {
-      const book=opts.cor.bookOf(opts.start);
-      const action=this.context.action;
-      const corpus=this.counterpartcorpus(opts.corpus);
-      opts.cor.getBookField(this.props.alignpage,book,function(data){
-        if (!data.pos) return;
-        const at=bsearch(data.pos,opts.start,true);
-        if (at<1) return;
-        const address=data.value[at-1];
-        if (this.address!==address) {
-          action("goto",{corpus,address});
-          this.address=address;
-        }
-      });
-    } else {
-
+    if (opts.corpus==this.props.alignpage) {
+      this.createCounterPartLinks(opts);
+    } else { //create a line widget to jump to other 
+      this.createSourcePageLink(opts);
     }
   }
   ,render:function(){
