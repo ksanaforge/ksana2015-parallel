@@ -15,6 +15,10 @@ const CorpusView=React.createClass({
 		unlistenAll:PT.func.isRequired
 	}
 	,propTypes:{
+		cor:PT.object.isRequired,
+		corpus:PT.string.isRequired,
+		decorations:PT.array,
+		side:PT.number,
 		store:PT.object
 	}
 	,getInitialState:function(){
@@ -22,11 +26,32 @@ const CorpusView=React.createClass({
 			links:[],layout:'p',linebreaks:[],pagebreaks:[]
 		};
 	}
+	,componentDidMount:function(){
+		this.context.listen("goto",this.goto,this);
+		this.context.listen("toggleLayout",this.toggleLayout,this);
+		this.context.listen("highlightAddress",this.highlightAddress,this);
+		this.context.listen("nextArticle",this.nextArticle,this);
+		this.context.listen("prevArticle",this.prevArticle,this);
+		this.context.listen("charWidget",this.charWidget,this);
+		this.context.listen("lineWidget",this.lineWidget,this);
+		if (!this.props.cor) return;
+		var address=addressHashTag.getAddress(this.props.cor.meta.name);
+		if (!address)  address=this.props.address;
+		address&this.goto({address,cor:this.props.cor,corpus:this.props.cor.meta.name});
+	}
+	,componentWillReceiveProps:function(nextProps){//cor changed
+		if (nextProps.corpus!==this.props.corpus
+			||nextProps.address!==this.props.address){
+		this.goto(nextProps,nextProps.cor);
+		}
+	}	
 	,goto:function(opts){
 		opts=opts||{};
-		const cor=this.props.cor;
-		if (!cor)return;
+		const cor=opts.cor||this.props.cor;
 		if (opts.corpus!==cor.meta.name) return;
+		if (typeof opts.side!=="undefined" && this.props.side!==opts.side){
+			return;
+		}
 		const range=cor.parseRange(opts.address);
 		const article=cor.articleOf(range.start);
 		if (!article)return;
@@ -64,6 +89,7 @@ const CorpusView=React.createClass({
 	}
 	,lineWidget:function(opts){
 		if (opts.corpus!==this.props.corpus)return;
+		if (opts.side!==this.props.side)return;
 		const cm=this.refs.cm.getCodeMirror();
 		const linech=this.toLogicalPos(opts.address);
 		if (linech.line==-1)return;
@@ -129,19 +155,6 @@ const CorpusView=React.createClass({
 	}
 	,prevArticle:function(opts){
 		this.getArticle(opts,-1);
-	}
-	,componentDidMount:function(){
-		this.context.listen("goto",this.goto,this);
-		this.context.listen("toggleLayout",this.toggleLayout,this);
-		this.context.listen("highlightAddress",this.highlightAddress,this);
-		this.context.listen("nextArticle",this.nextArticle,this);
-		this.context.listen("prevArticle",this.prevArticle,this);
-		this.context.listen("charWidget",this.charWidget,this);
-		this.context.listen("lineWidget",this.lineWidget,this);
-		if (!this.props.cor) return;
-		var address=addressHashTag.getAddress(this.props.cor.meta.name);		
-		if (!address)  address=this.props.address;
-		address&this.goto({address,corpus:this.props.cor.meta.name});	
 	}
 	,charWidget:function(opts){
 		if (opts.corpus!=this.props.corpus)return;

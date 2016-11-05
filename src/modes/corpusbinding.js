@@ -1,4 +1,5 @@
 const React=require("react");
+const ReactDOM=require("react-dom");
 const E=React.createElement;
 const PT=React.PropTypes;
 const {openCorpus,bsearch}=require("ksana-corpus");
@@ -8,9 +9,11 @@ const Viewers={
 const Menus={
   default:require("../corpusmenu")
 }
+const CounterPartNav=require("../menu/counterpartnav");
 const CorpusBinding = React.createClass({
   getInitialState:function() {
-    return {};
+    return {leftCorpus:this.props.leftCorpus,leftAddress:this.props.leftAddress,
+      rightCorpus:this.props.rightCorpus,rightAddress:this.props.rightAddress};
   },
   contextTypes:{
     action:PT.func.isRequired,
@@ -26,17 +29,27 @@ const CorpusBinding = React.createClass({
          }
       }.bind(this));
     }.bind(this));
+    this.context.listen("corpusgoto",this.corpusgoto,this);
   },
   componentWillUnmount:function(){
     this.context.unlistenAll(this);
   }
+  ,corpusgoto:function(opts){
+    openCorpus(opts.corpus,function(err,cor){
+      if (opts.side==1) {
+        this.setState({rightCor:cor,rightCorpus:opts.corpus,rightAddress:opts.address});
+      } else {
+        this.setState({leftCor:cor,leftCorpus:opts.corpus,leftAddress:opts.address});  
+      }
+    }.bind(this));
+  }
   ,counterpartcorpus:function(corpus){
-    if (corpus==this.props.rightCorpus) return this.props.leftCorpus;
-    else if (corpus===this.props.leftCorpus) return this.props.rightCorpus;
+    if (corpus==this.state.rightCorpus) return this.state.leftCorpus;
+    else if (corpus===this.state.leftCorpus) return this.state.rightCorpus;
   }
   ,counterpartcor:function(corpus){
-    if (corpus==this.props.rightCorpus) return this.state.leftCor;
-    else if (corpus===this.props.leftCorpus) return this.state.rightCor;
+    if (corpus==this.state.rightCorpus) return this.state.leftCor;
+    else if (corpus===this.state.leftCorpus) return this.state.rightCor;
   }  
   ,gotoCounterpart:function(e){
     clearTimeout(this.aligncounterpart);
@@ -59,12 +72,12 @@ const CorpusBinding = React.createClass({
     }.bind(this),300);
   }
   ,createSourcePageLink:function(opts){
-    const book=opts.cor.bookOf(opts.start);
+    const article=opts.cor.articleOf(opts.start);
     const action=this.context.action;
     const targetcorpus=this.counterpartcorpus(opts.corpus);
     const onmouseenter=this.gotoSource;
     const caption=this.props.alignpage;//button caption
-    opts.cor.getBookField(this.props.alignpage,book,function(data){
+    opts.cor.getArticleField(article,this.props.alignpage,function(data){
       if (!data.pos) return;
       const at=bsearch(data.pos,opts.start,true);
       if (at<1) return;
@@ -78,19 +91,40 @@ const CorpusBinding = React.createClass({
       action("charWidget",{corpus:opts.corpus,address:data.pos[at-1],widget});
     });    
   }
+  ,sideCorpus:function(side){
+    if (side==1) return this.state.rightCorpus;
+    else return this.state.leftCorpus;
+  }
+  ,onSelect:function(corpus,pbaddress,side){
+    //pbaddress is foreign address in alignpage
+    if (!corpus)return;
+    const alignpage=this.props.alignpage;
+    const action=this.context.action;
+
+    if (alignpage==corpus) {
+      action("corpusgoto",{corpus,address:pbaddress,side});
+      return;
+    }
+
+    openCorpus(corpus,function(err,cor){
+      if (err)return;
+      cor.findAField(alignpage,pbaddress,function(err,address){
+        if (!err) action("corpusgoto",{corpus,address:address+1,side});//+1 next char
+      })
+    });
+  }
   ,createCounterPartLinks:function(opts){
     const action=this.context.action;
     const address=opts.cor.pageStart(opts.start);
-
-    const widget=document.createElement("span");
-    widget.onmouseenter=onmouseenter;
+    const side=1-opts.side;
+    const widget=document.createElement("div");
     widget.className="counterparts";
-    widget.innerHTML="Nanchuan....";
-    widget.dataset.corpus="nanchuan";
-    widget.dataset.address=address;
-    widget.onmouseenter=this.gotoCounterpart;
-
-    action("lineWidget",{corpus:opts.corpus,address,widget});
+    ReactDOM.render(E(CounterPartNav,{address,
+      onSelect:this.onSelect, side,
+      counterParts:this.props.counterParts})
+    ,widget);
+    
+    action("lineWidget",{corpus:opts.corpus,address,widget,side:opts.side});
   }
   ,onSelection:function(opts){
     if (opts.corpus==this.props.alignpage) {
@@ -111,11 +145,11 @@ const CorpusBinding = React.createClass({
   	return E("div",{style:this.props.style},
   		E("div",{style:{display:'flex'}},
   			E("div",{style:{flex:this.props.leftFlex||1}},
-  				E(LeftView,{side:0,cor:this.state.leftCor,corpus:this.props.leftCorpus,
-            nav:this.props.nav,store:this.props.store,menu:LeftMenu,address:this.props.leftAddress})),
+  				E(LeftView,{side:0,cor:this.state.leftCor,corpus:this.state.leftCorpus,
+            nav:this.props.nav,store:this.props.store,menu:LeftMenu,address:this.state.leftAddress})),
   			E("div",{style:{flex:this.props.rightFlex||1}},
-  				E(RightView,{side:1,cor:this.state.rightCor,corpus:this.props.rightCorpus,
-            nav:this.props.nav,store:this.props.store,menu:RightMenu,address:this.props.rightAddress}))
+  				E(RightView,{side:1,cor:this.state.rightCor,corpus:this.state.rightCorpus,
+            nav:this.props.nav,store:this.props.store,menu:RightMenu,address:this.state.rightAddress}))
   		)
   	)
   }
