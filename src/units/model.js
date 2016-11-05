@@ -73,7 +73,10 @@ const unregisterGetter=function(name) {
 }
 
 const	listen=function(event,cb,element){
-		listeners.push([element,event,cb]);
+	listeners=listeners.filter(function(listener){ //prevent listening twice
+		return listener[0]!==element || listener[1]!==event;
+	});
+	listeners.push([element,event,cb]);
 }
 
 const unlistenAll=function(element){
