@@ -3,9 +3,6 @@ const E=React.createElement;
 const PT=React.PropTypes;
 const CMView=require("./cmview");
 const defaultrule=require("../defaultrule");
-const LinkedByPopup=require("./linkedbypopup");
-const linkedBy=require("../linkedby");
-const toMarkup=require("../bindings/tomarkup");
 const addressHashTag=require("../units/addresshashtag");
 const decorations=require("../decorations/");
 const CorpusView=React.createClass({
@@ -19,12 +16,13 @@ const CorpusView=React.createClass({
 		corpus:PT.string.isRequired,
 		decorations:PT.array,
 		side:PT.number,
-		store:PT.object
+		store:PT.object,
+		viewReady:PT.func,
+		viewLeaving:PT.func,
+		onCursorActivity:PT.func
 	}
 	,getInitialState:function(){
-		return {startkpos:1,popupX:0,popupY:0,article:{},
-			links:[],layout:'p',linebreaks:[],pagebreaks:[]
-		};
+		return {startkpos:1,article:{},layout:'p',linebreaks:[],pagebreaks:[]};
 	}
 	,componentDidMount:function(){
 		this.context.listen("goto",this.goto,this);
@@ -55,10 +53,9 @@ const CorpusView=React.createClass({
 		const range=cor.parseRange(opts.address);
 		const article=cor.articleOf(range.start);
 		if (!article)return;
-		if (article.articlename&& this.props.store) {
-			this.props.store.offLinkedBy&&this.props.store.offLinkedBy(article.articlename);
-			this.props.store.offLink&&this.props.store.offLink(opts.corpus,article.articlename);
-		}
+
+		this.viewLeaving(this.state.article);
+		
 		cor.getArticleText(article.at,function(text){
 			if (!text)return;
 			this.layout(article,text,opts.address);
@@ -74,14 +71,29 @@ const CorpusView=React.createClass({
 				this.refs.cm.getCodeMirror(),this.toLogicalPos);
 		}.bind(this));
 	}
+	,viewLeaving:function(article){
+		const corpus=this.props.corpus,cor=this.props.cor,side=this.props.side;
+		const cm=this.refs.cm.getCodeMirror();
+		this.props.viewLeaving&&this.props.viewLeaving({article,cor,corpus,side,cm});
+	}
+	,viewReady:function(article){
+		const corpus=this.props.corpus,cor=this.props.cor,side=this.props.side;
+		const cm=this.refs.cm.getCodeMirror();
+		const kPosToLineCh=this.kPosToLineCh;
+		this.props.viewReady&&this.props.viewReady({article,cor,corpus,side,cm,kPosToLineCh});
+	}
+	,kPosToLineCh:function(kposs){
+		var r,out=[];
+		for (var i=0;i<kposs.length;i++){
+				r=this.props.cor.toLogicalRange(this.state.linebreaks,kposs[i][0],this.getRawLine);
+				out.push([r.start,r.end,kposs[i][1]]);
+		}
+		return out;
+	}
 	,onLoaded:function(res){
-		const store=this.props.store;
-		if (store){
-			store.onLinkedBy&&store.onLinkedBy(res.articlename,linkedBy,this);
-			store.onLink&&store.onLink(this.props.cor.meta.name,res.articlename,toMarkup,this);	
-		}		
 		res.address&&this.scrollToAddress(res.address);
 		this.decorate();
+		this.viewReady(res.article);
 	}
 	,getRawLine:function(line){
 		if (!this.state.text)return "";
@@ -127,7 +139,7 @@ const CorpusView=React.createClass({
 			this.setState({text,linebreaks:layout.linebreaks,startkpos:article.start,
 				pagebreaks:layout.pagebreaks,article});
 			this.context.action("loaded",
-					{articlename:article.articlename,
+					{article,articlename:article.articlename,
 						data:layout.lines.join("\n"),side,address});
 		}
 
@@ -165,10 +177,7 @@ const CorpusView=React.createClass({
 	}
 	,componentWillUnmount:function(){
 		this.context.unlistenAll();
-		if (this.props.store){
-			this.props.store.offLinkedBy&&this.props.store.offLinkedBy(this.state.article.articlename);
-			this.props.store.offLink&&this.props.store.offLink(this.props.cor.meta.name,this.state.article.articlename);
-		}
+		this.viewLeaving&&this.viewLeaving(this.state.article);
 	}
 	,kRangeFromSel:function(cm,from,to){
 		if (!from||!to)return 0;
@@ -225,30 +234,11 @@ const CorpusView=React.createClass({
 			);
 		}
 	}
-	,showLinkPopup:function(cm){
-		const cursor=cm.getCursor();
-		const cor=this.props.cor;
-		const marks=cm.findMarksAt(cursor);
-		const kRangeFromSel=this.kRangeFromSel;
-		var links=marks.map(function(m){
-			const p=m.find();
-			const krange=kRangeFromSel(cm,p.from,p.to);
-			const caption=cor.stringify(krange);
-			return [caption,m.noteid]
-		});
-		links=links.filter(function(l){return l[1]});
-		if (links.length) {
-			const coords=cm.charCoords(cursor);
-			this.setState({popupX:coords.left,popupY:coords.top+30,links});
-		} else if (this.state.links.length) {
-			this.setState({links:[]});
-		}		
-	}
 	,onCursorActivity:function(cm){
 		clearTimeout(this.cursortimer);
 		this.cursortimer=setTimeout(function(){
 			this.detectSelection(cm);
-			this.showLinkPopup(cm);
+			this.props.onCursorChanged&&this.props.onCursorChanged(cm);
 		}.bind(this),300);
 	}
 	,render:function(){
@@ -261,11 +251,7 @@ const CorpusView=React.createClass({
 			articlename:this.state.article.articlename
 			}
 		);
-		const popupprops={x:this.state.popupX,y:this.state.popupY,links:this.state.links};
-		return E("div",{},
-			E(LinkedByPopup,popupprops),
-			E(CMView,props)
-		);
+		return E(CMView,props);
 	}
 })
 module.exports=CorpusView;

@@ -1,16 +1,11 @@
-const kPosToLineCh=function(kposs){
-	var r,out=[];
-	for (var i=0;i<kposs.length;i++){
-			r=this.props.cor.toLogicalRange(this.state.linebreaks,kposs[i][0],this.getRawLine);
-			out.push([r.start,r.end,kposs[i][1]]);
-	}
-	return out;
-}
+/*
+cm  code mirror instance
+kPosToLineCh convert kpos array to line ch
+*/
 const highlighLinkedBy=function(linkedby){
-		const cm=this.refs.cm;
 		for (var i=0;i<linkedby.length;i++){
 			const r=linkedby[i];
-			cm.markText(r[0],r[1],{className:"linkedBy",noteid:r[2]});
+			this.cm.markText(r[0],r[1],{className:"linkedBy",noteid:r[2]});
 		}
 }
 	//stupid way to find out differences of old and new data
@@ -29,7 +24,7 @@ const	diffLinkedBy=function(olddata,newdata){
 	return out;
 }
 const removeLinkedBy=function(differences){
-	const marks=this.refs.cm.getAllMarks();
+	const marks=this.cm.getAllMarks();
 	for (var i=0;i<marks.length;i++){
 		if (differences[marks[i].noteid]) {
 			marks[i].clear();
@@ -39,7 +34,7 @@ const removeLinkedBy=function(differences){
 const linkedBy=function(data){
 	//  article/note id/range
 		//object key noteid, array of krange
-	const differences=diffLinkedBy(this.data,data);
+	const differences=diffLinkedBy(this._linksdata,data);
 	removeLinkedBy.call(this,differences);
 	var kpos=[],i;
 	for (var noteid in data){
@@ -49,9 +44,9 @@ const linkedBy=function(data){
 			}
 		}
 	}
-	const linkedby=kPosToLineCh.call(this,kpos);
+	const linkedby=this.kPosToLineCh.call(this,kpos);
 	this.setState({links:[]}); //links to be shown in link popup
 	highlighLinkedBy.call(this,linkedby);
-	this.data=data;
+	this._linksdata=data;
 }
 module.exports=linkedBy;
