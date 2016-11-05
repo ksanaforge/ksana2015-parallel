@@ -40,7 +40,7 @@ const CorpusView=React.createClass({
 	,componentWillReceiveProps:function(nextProps){//cor changed
 		if (nextProps.corpus!==this.props.corpus
 			||nextProps.address!==this.props.address){
-		this.goto(nextProps,nextProps.cor);
+			this.goto(nextProps,nextProps.cor);
 		}
 	}	
 	,goto:function(opts){
@@ -53,6 +53,11 @@ const CorpusView=React.createClass({
 		const range=cor.parseRange(opts.address);
 		const article=cor.articleOf(range.start);
 		if (!article)return;
+
+		if (article.at==this.state.article.at){
+			this.scrollToAddress(opts.address);
+			return;
+		}
 
 		this.viewLeaving(this.state.article);
 		
@@ -156,17 +161,17 @@ const CorpusView=React.createClass({
 			changetext.call(this, cor.layoutText(text,article.start) );
 		}
 	}
-	,getArticle:function(opts,nav){
+	,gotoArticle:function(opts,nav){
 		const corpus=this.props.cor.meta.name;
 		if (opts.corpus!==corpus) return;
 		const r=this.props.cor.getArticle(this.state.article.at,nav);
 		if(r) this.goto({corpus,address:r.start});
 	}
 	,nextArticle:function(opts){
-		this.getArticle(opts,1);
+		this.gotoArticle(opts,1);
 	}
 	,prevArticle:function(opts){
-		this.getArticle(opts,-1);
+		this.gotoArticle(opts,-1);
 	}
 	,charWidget:function(opts){
 		if (opts.corpus!=this.props.corpus)return;
