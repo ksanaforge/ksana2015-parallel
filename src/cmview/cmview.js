@@ -98,9 +98,7 @@ const CMView=React.createClass({
 			//	w:this.state.popupW,h:this.state.popupH,
 			//	rule,
 			//	text:this.state.popupText}),
-			E(this.props.menu,{side:this.props.side,address:this.props.address,
-				nav:this.props.nav,articlename:this.props.articlename,
-				buttons:this.props.docs,selected:this.props.doc,corpus:this.props.corpus}),
+			E(this.props.menu,this.props),
 	  	E(CodeMirror,{ref:"cm",value:"",theme:"ambiance",readOnly:true,
   	  onCursorActivity:this.props.onCursorActivity
   	  ,onKeyPress:this.onKeyPress

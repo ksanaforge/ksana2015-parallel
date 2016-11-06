@@ -31,6 +31,14 @@ const removeLinkedBy=function(differences){
 		}
 	}
 }
+const ToLineCh=function(kposs){
+	var r,out=[];
+	for (var i=0;i<kposs.length;i++){
+			r=this.toLogicalRange(kposs[i][0]);
+			out.push([r.start,r.end,kposs[i][1]]);
+	}
+	return out;
+}
 const linkedBy=function(data){
 	//  article/note id/range
 		//object key noteid, array of krange
@@ -44,7 +52,8 @@ const linkedBy=function(data){
 			}
 		}
 	}
-	const linkedby=this.kPosToLineCh.call(this,kpos);
+	const linkedby=ToLineCh.call(this,kpos);
+
 	this.setState({links:[]}); //links to be shown in link popup
 	highlighLinkedBy.call(this,linkedby);
 	this._linksdata=data;

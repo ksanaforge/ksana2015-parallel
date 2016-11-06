@@ -14,8 +14,11 @@ const MarkupMenu=React.createClass({
 		this.context.listen("selection",this.onSelection,this);
 	}
 	,onSelection:function(opts){
-		this.props.store.setSelection(opts.corpus,opts.article,opts.range);
-		const sels=this.props.store.getSelections();
+		const store=this.props.store;
+		opts.end>opts.start?store.setSelection(opts.corpus,opts.article,opts.range)
+			:store.setSelection(opts.corpus,opts.article,null);	
+
+		const sels=store.getSelections();
 		const linkable=Object.keys(sels).length==2;
 		if (this.state.linkable!==linkable) this.setState({linkable});
 	}
@@ -23,7 +26,7 @@ const MarkupMenu=React.createClass({
 		this.context.unlistenAll(this);
 	}	
 	,onlink:function(){
-		this.props.store.makelink();
+		this.props.store.createBinding();
 	}
 	,render:function(){
 		return E("div",{},

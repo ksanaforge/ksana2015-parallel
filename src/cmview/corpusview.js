@@ -5,6 +5,7 @@ const CMView=require("./cmview");
 const defaultrule=require("../defaultrule");
 const addressHashTag=require("../units/addresshashtag");
 const decorations=require("../decorations/");
+const decorateBond=require("../decorations/bond");
 const CorpusView=React.createClass({
 	contextTypes:{
 		action:PT.func.isRequired,
@@ -17,9 +18,10 @@ const CorpusView=React.createClass({
 		decorations:PT.array,
 		side:PT.number,
 		store:PT.object,
-		viewReady:PT.func,
-		viewLeaving:PT.func,
-		onCursorActivity:PT.func
+		onViewReady:PT.func,
+		onViewLeaving:PT.func,
+		onCursorActivity:PT.func,
+		onViewport:PT.func
 	}
 	,getInitialState:function(){
 		return {startkpos:1,article:{},layout:'p',linebreaks:[],pagebreaks:[]};
@@ -32,6 +34,8 @@ const CorpusView=React.createClass({
 		this.context.listen("prevArticle",this.prevArticle,this);
 		this.context.listen("charWidget",this.charWidget,this);
 		this.context.listen("lineWidget",this.lineWidget,this);
+		this.context.listen("addBond",decorateBond.addBond,this);
+		this.context.listen("setActiveBond",decorateBond.setActiveBond,this);
 		if (!this.props.cor) return;
 		var address=addressHashTag.getAddress(this.props.cor.meta.name);
 		if (!address)  address=this.props.address;
@@ -69,6 +73,16 @@ const CorpusView=React.createClass({
 	,toLogicalPos:function(address){
 		return this.props.cor.toLogicalPos(this.state.linebreaks,address,this.getRawLine);		
 	}
+	,toLogicalRange:function(range){
+		return this.props.cor.toLogicalRange(this.state.linebreaks,range,this.getRawLine);
+	}
+	,fromLogicalPos:function(linech){
+		const cm=this.refs.cm.getCodeMirror();
+		const firstline=this.props.cor.bookLineOf(this.state.startkpos); //first of of the article
+		const text=cm.doc.getLine(linech.line);
+		const lb=this.state.linebreaks[linech.line];
+		return this.props.cor.fromLogicalPos(text,linech.ch,lb,firstline,this.getRawLine);
+	}
 	,decorate:function(){
 		if (!this.props.decorations)return;
 		this.props.decorations.forEach(function(d){
@@ -79,21 +93,13 @@ const CorpusView=React.createClass({
 	,viewLeaving:function(article){
 		const corpus=this.props.corpus,cor=this.props.cor,side=this.props.side;
 		const cm=this.refs.cm.getCodeMirror();
-		this.props.viewLeaving&&this.props.viewLeaving({article,cor,corpus,side,cm});
+		this.props.onViewLeaving&&this.props.onViewLeaving({article,cor,corpus,side,cm});
 	}
 	,viewReady:function(article){
 		const corpus=this.props.corpus,cor=this.props.cor,side=this.props.side;
 		const cm=this.refs.cm.getCodeMirror();
-		const kPosToLineCh=this.kPosToLineCh;
-		this.props.viewReady&&this.props.viewReady({article,cor,corpus,side,cm,kPosToLineCh});
-	}
-	,kPosToLineCh:function(kposs){
-		var r,out=[];
-		for (var i=0;i<kposs.length;i++){
-				r=this.props.cor.toLogicalRange(this.state.linebreaks,kposs[i][0],this.getRawLine);
-				out.push([r.start,r.end,kposs[i][1]]);
-		}
-		return out;
+		const toLogicalRange=this.toLogicalRange;
+		this.props.onViewReady&&this.props.onViewReady({article,cor,corpus,side,cm,toLogicalRange});
 	}
 	,onLoaded:function(res){
 		res.address&&this.scrollToAddress(res.address);
@@ -246,6 +252,18 @@ const CorpusView=React.createClass({
 			this.props.onCursorChanged&&this.props.onCursorChanged(cm);
 		}.bind(this),300);
 	}
+	,onViewportChange:function(cm,from,to){
+		if (!this.props.onViewport)return;
+		clearTimeout(this.viewporttimer);
+		this.viewporttimer=setTimeout(function(){
+			const opts={cm,from,to,side:this.props.side,cor:this.props.cor
+				,fromLogicalPos:this.fromLogicalPos
+				,toLogicalPos:this.toLogicalPos
+				,toLogicalRange:this.toLogicalRange
+				,corpus:this.props.corpus,article:this.state.article,articlename:this.state.article.articlename}
+			this.props.onViewport(opts);
+		}.bind(this),300);
+	}
 	,render:function(){
 		if (!this.props.cor) return E("div",{},"loading");
 		const props=Object.assign({},this.props,
@@ -253,6 +271,7 @@ const CorpusView=React.createClass({
 			onCursorActivity:this.onCursorActivity,
 			onLoaded:this.onLoaded,
 			onCopy:this.onCopy,
+			onViewportChange:this.onViewportChange,
 			articlename:this.state.article.articlename
 			}
 		);

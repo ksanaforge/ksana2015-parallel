@@ -4,7 +4,7 @@ const PT=React.PropTypes;
 const openCorpus=require("ksana-corpus").openCorpus;
 const emptynote=require("../notes/emptynote");
 const LinkedByPopup=require("./linkedbypopup");
-const linkedBy=require("./linkedby");
+const linkedBy=require("../decorations/linkedby");
 const toMarkup=require("../bindings/tomarkup");
 
 const Viewers={
@@ -36,7 +36,7 @@ const CorpusNote = React.createClass({
     this.props.store.deleteNote(uid,noteid,kposs);
     this.context.action("noteloaded",{id:"",text:emptynote()});
   }
-  ,viewReady:function(opts){
+  ,onViewReady:function(opts){
     const store=this.props.store;
     const article=opts.article;
     if (store){
@@ -44,13 +44,14 @@ const CorpusNote = React.createClass({
       store.onLink&&store.onLink(opts.corpus,article.articlename,toMarkup,this); 
     }
     this.cm=opts.cm;
-    this.kPosToLineCh=opts.kPosToLineCh;
+    this.toLogicalRange=opts.toLogicalRange;
   }
-  ,viewLeaving:function(opts){
+  ,onViewLeaving:function(opts){
+    const store=this.props.store;
     const article=opts.article;
-    if (article.articlename&& this.props.store) {
-      this.props.store.offLinkedBy&&this.props.store.offLinkedBy(article.articlename);
-      this.props.store.offLink&&this.props.store.offLink(opts.corpus,article.articlename);
+    if (article.articlename &&store) {
+      store.offLinkedBy&&this.props.store.offLinkedBy(article.articlename);
+      store.offLink&&this.props.store.offLink(opts.corpus,article.articlename);
     }
   }
   ,showLinkPopup:function(cm){
@@ -91,9 +92,10 @@ const CorpusNote = React.createClass({
   		E("div",{style:{display:'flex'}},
   			E("div",{style:{flex:1}},
   				E(LeftView,{ref:"leftview",side:0,cor:this.state.cor,corpus:this.props.corpus,
-  					menu:leftMenu,nav:this.props.nav,viewReady:this.viewReady,
-            store:this.props.store,address:this.props.address,
-            onCursorChanged:this.onCursorChanged})),
+  					menu:leftMenu,nav:this.props.nav
+            ,onViewReady:this.onViewReady,onViewLeaving:this.onViewLeaving
+            ,store:this.props.store,address:this.props.address
+            ,onCursorChanged:this.onCursorChanged})),
   			E("div",{style:{flex:1}},
   				E(RightView,{side:1,corpus:this.props.corpus,cor:this.state.cor,
   					menu:rightMenu,store:this.props.store,ref:"note",

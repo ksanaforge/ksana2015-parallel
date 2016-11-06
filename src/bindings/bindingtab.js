@@ -26,7 +26,7 @@ const NoteTab=React.createClass({
 		this.setState({token:"",user:""});
 	}
 	,renderMarkupMenu:function(){
-		if (!this.state.user) return;
+//		if (!this.state.user) return;
 		return E(MarkupMenu,this.props);
 	}
 	,render:function(){
