@@ -24,6 +24,11 @@ const CorpusBinding = React.createClass({
   ,propTypes:{
     store:PT.object.isRequired
   }
+  ,deleteBinding:function(opts){
+    const article=this._corpusarticle[opts.corpus];
+    const targetcorpus=this.counterpartcorpus(opts.corpus);
+    this.props.store.deleteBinding(opts.corpus,article,targetcorpus,opts.key);
+  }
   ,componentDidMount:function(){
     openCorpus(this.props.leftCorpus,function(err,leftCor){
       openCorpus(this.props.rightCorpus,function(err2,rightCor){
@@ -34,25 +39,38 @@ const CorpusBinding = React.createClass({
       }.bind(this));
     }.bind(this));
     this.context.listen("corpusgoto",this.corpusgoto,this);
-  },
-  componentWillUnmount:function(){
+    this.context.listen("deleteBinding",this.deleteBinding,this);
+    this.context.listen("createBinding",this.createBinding,this);
+  }
+  ,createBinding:function(){
+    const action=this.context.action;
+    this.props.store.createBinding(function(){
+      setTimeout(function(){
+        action("clearSelection");
+      },10);
+    }.bind(this));
+  }
+  ,componentWillUnmount:function(){
     this.context.unlistenAll(this);
   }
-  ,bondAdded:function(key,data,corpus,article,targetcorpus){
+  ,bondAdded:function(key,data,corpus,article,targetcorpus){//from firebase
     const r=key.split("_");
     const source=parseInt(r[0],36),target=parseInt(r[1],36);
-    this.context.action("addBond",{corpus,address:source,key})
-    this.context.action("addBond",{corpus:targetcorpus,address:target,key});
+    const seq=this.seq=this.seq||0;
+    this.context.action("addBond",{corpus,address:source,key,seq});
+    this.context.action("addBond",{corpus:targetcorpus,address:target,key,seq,shadow:true});
+    this.seq++;
   }
-  ,removed:function(key,data){
-    console.log("bond removed",key)
+  ,bondRemoved:function(key,data){
+    this.context.action("removeBond",key);
   }  
+  ,_corpusarticle:{}
   ,onViewReady:function(opts){
     const store=this.props.store;
     const targetcorpus=this.counterpartcorpus(opts.corpus);
     const context={corpus:opts.corpus,targetcorpus};
     const handlers={added:this.bondAdded,removed:this.bondRemoved};
-
+    this._corpusarticle[opts.corpus]=opts.article.articlename;
     store.onBinding&&store.onBinding(opts.corpus,opts.article.articlename,targetcorpus,handlers,context);
   }
   ,onViewLeaving:function(opts){
@@ -62,9 +80,6 @@ const CorpusBinding = React.createClass({
     if (article.articlename) {
       store.offBinding&&store.offBinding(opts.corpus,article.articlename,targetcorpus);
     }
-  }
-  ,onViewport:function(opts){
-    this.props.store.setViewport&&this.props.store.setViewport(opts);
   }
   ,corpusgoto:function(opts){
     openCorpus(opts.corpus,function(err,cor){
@@ -179,13 +194,11 @@ const CorpusBinding = React.createClass({
   			E("div",{style:{flex:this.props.leftFlex||1}},
   				E(LeftView,{side:0,cor:this.state.leftCor,corpus:this.state.leftCorpus,
             nav:this.props.nav,store:this.props.store,menu:LeftMenu,address:this.state.leftAddress
-            ,onViewReady:this.onViewReady,onViewLeaving:this.onViewLeaving
-            ,onViewport:this.onViewport})),
+            ,onViewReady:this.onViewReady,onViewLeaving:this.onViewLeaving})),
   			E("div",{style:{flex:this.props.rightFlex||1}},
   				E(RightView,{side:1,cor:this.state.rightCor,corpus:this.state.rightCorpus,
             nav:this.props.nav,store:this.props.store,menu:RightMenu,address:this.state.rightAddress
-            ,onViewReady:this.onViewReady,onViewLeaving:this.onViewLeaving
-            ,onViewport:this.onViewport}))
+            ,onViewReady:this.onViewReady,onViewLeaving:this.onViewLeaving}))
   		)
   	)
   }

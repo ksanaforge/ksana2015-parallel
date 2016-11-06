@@ -35,7 +35,9 @@ const CorpusView=React.createClass({
 		this.context.listen("charWidget",this.charWidget,this);
 		this.context.listen("lineWidget",this.lineWidget,this);
 		this.context.listen("addBond",decorateBond.addBond,this);
+		this.context.listen("removeBond",decorateBond.removeBond,this);
 		this.context.listen("setActiveBond",decorateBond.setActiveBond,this);
+		this.context.listen("clearSelection",this.clearSelection,this);
 		if (!this.props.cor) return;
 		var address=addressHashTag.getAddress(this.props.cor.meta.name);
 		if (!address)  address=this.props.address;
@@ -47,6 +49,11 @@ const CorpusView=React.createClass({
 			this.goto(nextProps,nextProps.cor);
 		}
 	}	
+	,clearSelection:function(){
+		const cm=this.refs.cm.getCodeMirror();
+		const cursor=cm.getCursor();
+		cm.doc.setSelection(cursor,cursor);
+	}
 	,goto:function(opts){
 		opts=opts||{};
 		const cor=opts.cor||this.props.cor;
@@ -100,6 +107,7 @@ const CorpusView=React.createClass({
 		const cm=this.refs.cm.getCodeMirror();
 		const toLogicalRange=this.toLogicalRange;
 		this.props.onViewReady&&this.props.onViewReady({article,cor,corpus,side,cm,toLogicalRange});
+		decorateBond.repaintBond.call(this);
 	}
 	,onLoaded:function(res){
 		res.address&&this.scrollToAddress(res.address);
@@ -253,16 +261,7 @@ const CorpusView=React.createClass({
 		}.bind(this),300);
 	}
 	,onViewportChange:function(cm,from,to){
-		if (!this.props.onViewport)return;
-		clearTimeout(this.viewporttimer);
-		this.viewporttimer=setTimeout(function(){
-			const opts={cm,from,to,side:this.props.side,cor:this.props.cor
-				,fromLogicalPos:this.fromLogicalPos
-				,toLogicalPos:this.toLogicalPos
-				,toLogicalRange:this.toLogicalRange
-				,corpus:this.props.corpus,article:this.state.article,articlename:this.state.article.articlename}
-			this.props.onViewport(opts);
-		}.bind(this),300);
+		decorateBond.onViewportChange.call(this,cm,from,to);
 	}
 	,render:function(){
 		if (!this.props.cor) return E("div",{},"loading");

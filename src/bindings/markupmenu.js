@@ -4,6 +4,7 @@ const PT=React.PropTypes;
 
 const MarkupMenu=React.createClass({
 	contextTypes:{
+		action:PT.func.isRequired,
 		listen:PT.func.isRequired,
 		unlistenAll:PT.func.isRequired
 	}
@@ -26,7 +27,7 @@ const MarkupMenu=React.createClass({
 		this.context.unlistenAll(this);
 	}	
 	,onlink:function(){
-		this.props.store.createBinding();
+		this.context.action("createBinding");
 	}
 	,render:function(){
 		return E("div",{},
