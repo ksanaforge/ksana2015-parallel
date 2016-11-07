@@ -152,7 +152,8 @@ const CorpusBinding = React.createClass({
       action("corpusgoto",{corpus,address:pbaddress,side});
       return;
     }
-
+    //nanchuan #pts is not in order (pts book 3 than book 1)
+    //cor.fields after sorted, point to a wrong article
     openCorpus(corpus,function(err,cor){
       if (err)return;
       cor.findAField(alignpage,pbaddress,function(err,address){

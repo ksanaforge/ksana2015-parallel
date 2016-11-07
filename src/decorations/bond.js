@@ -1,3 +1,8 @@
+/*TODO
+	this._bonds will keep growing even article is changed.
+	to prevent another fetch from firebase when switching from a no match page to match page.	
+	need to find a better way to delete un needed bonds.
+*/
 const action=require("../units/model").action;
 const bondhandlecaption=" ●";
 var handlertimer,deletetimer;
@@ -126,6 +131,21 @@ const onViewportChange=function(cm,from,to){
 	const r=getViewportAddress.call(this,from,to);
 	renderBond.call(this,r.start,r.end);
 }
+const hideBonds=function(){
+	if (!this._bonds)return;
+	const B=this._bonds;
+	for (var key in B) {
+		if (B[key].mark) {
+			B[key].mark.clear();
+			B[key].mark=null;
+		}
+		if (B[key].handle){
+			B[key].handle.clear();
+			B[key].handle=null;			
+		}
+	}
+}
+
 const removeBond=function(key){
 	if (!this._bonds)return;
 	const B=this._bonds;
@@ -136,4 +156,4 @@ const removeBond=function(key){
 	}
 }
 
-module.exports={addBond,removeBond,setActiveBond,onViewportChange,repaintBond};
+module.exports={addBond,removeBond,hideBonds,setActiveBond,onViewportChange,repaintBond};

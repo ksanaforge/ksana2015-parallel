@@ -100,6 +100,7 @@ const CorpusView=React.createClass({
 	,viewLeaving:function(article){
 		const corpus=this.props.corpus,cor=this.props.cor,side=this.props.side;
 		const cm=this.refs.cm.getCodeMirror();
+		decorateBond.hideBonds();
 		this.props.onViewLeaving&&this.props.onViewLeaving({article,cor,corpus,side,cm});
 	}
 	,viewReady:function(article){
