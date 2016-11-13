@@ -46,7 +46,8 @@ const createDef=function(cm,cor,linech,text,target){
 	cm.setBookmark(linech,{widget:dom,handleMouseEvents:true});
 }
 const note=function(cor,article,cm,toLogicalPos){
-	cor.getArticleField(["ptr","def"],article,function(data){
+	cor.getArticleField(article,["ptr","def"],function(data){
+		if (!data) return;
 		const ptr_pv=data[0], def_pv=data[1];
 		if (!ptr_pv || !def_pv)return;
 		ptr_pv.pos.forEach(function(pos,idx){

@@ -12,6 +12,7 @@ var ControlPanel = React.createClass({
   }
   ,render:function(){
     var Tab=Tabs[this.props.control];
+
   	return E("div",{style:this.props.style},
         Tab?E(Tab,this.props):null
     );

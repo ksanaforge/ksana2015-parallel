@@ -32,7 +32,7 @@ const CorpusNoteMode=React.createClass({
 
     var props2=Object.assign({},this.props,
       {style:styles.body,scrollTo:this.state.ScrollTo,store:this.state.store});
-
+    
     return E("div",{style:styles.topcontainer},
       E(CorpusNote,props2),
       E(ControlPanel,props1)

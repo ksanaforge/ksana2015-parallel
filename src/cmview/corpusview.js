@@ -88,6 +88,7 @@ const CorpusView=React.createClass({
 		const firstline=this.props.cor.bookLineOf(this.state.startkpos); //first of of the article
 		const text=cm.doc.getLine(linech.line);
 		const lb=this.state.linebreaks[linech.line];
+		if (!text) return this.state.startkpos;
 		return this.props.cor.fromLogicalPos(text,linech.ch,lb,firstline,this.getRawLine);
 	}
 	,decorate:function(){
